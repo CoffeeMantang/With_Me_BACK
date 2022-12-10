@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -49,7 +50,7 @@ public class MemberDTO {
 
     private String profileImg;
 
-    private MultipartFile file;
+    private List<MultipartFile> file;
 
     private double rating; // 평점
 
@@ -72,5 +73,10 @@ public class MemberDTO {
         this.address2 = member.getAddress2();
         this.profileImg = member.getProfileImg();
 
+    }
+
+    // 파일 null 체크
+    public boolean checkFileNull() {
+        return this.file != null;
     }
 }
