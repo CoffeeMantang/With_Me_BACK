@@ -1,6 +1,8 @@
 package com.coffemantang.With_Me_BACK.service;
 
 import com.coffemantang.With_Me_BACK.dto.ApplyPlanDTO;
+import com.coffemantang.With_Me_BACK.dto.CheckDTO;
+import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.model.ApplyPlan;
 import com.coffemantang.With_Me_BACK.model.PlanMembers;
 import com.coffemantang.With_Me_BACK.persistence.ApplyPlanRepository;
@@ -9,6 +11,8 @@ import com.coffemantang.With_Me_BACK.persistence.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -21,15 +25,29 @@ public class ApplyPlanService {
 
     private final PlanRepository planRepository;
 
+    private final PlanService planService;
+
     // 여행 참여 신청
     public void applyPlan(int memberId, ApplyPlanDTO applyPlanDTO) {
 
-        if(memberId != applyPlanDTO.getMemberId()) {
-            log.warn("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
-            throw new RuntimeException("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
-        }
-
         try {
+
+            // 아이디 검사
+            if(memberId != applyPlanDTO.getMemberId()) {
+                log.warn("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
+                throw new RuntimeException("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
+            }
+
+            // 신청 중복 검사
+            long chk = planMembersRepository.countByPlanIdAndMemberId(memberId, applyPlanDTO.getMemberId());
+            if (chk > 0) {
+                log.warn("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
+                throw new RuntimeException("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
+            }
+            // 일정 상태 검사
+            planService.checkState(new CheckDTO(applyPlanDTO.getPlanId()));
+            // 조건 체크
+            planService.checkCondition(memberId, applyPlanDTO.getStartDate(), applyPlanDTO.getEndDate());
 
             ApplyPlan applyPlan = new ApplyPlan();
             applyPlan.setMemberId(applyPlanDTO.getMemberId());

@@ -2,8 +2,10 @@ package com.coffemantang.With_Me_BACK.persistence;
 
 import com.coffemantang.With_Me_BACK.model.Plan;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -20,5 +22,22 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     int selectCountByMemberIdAndStateAndDate(@Param("memberId") int memberId, @Param("state") int state,
                                              @Param("endDate") LocalDateTime endDate, @Param("startDate") LocalDateTime startDate);
 
-    // planId와 memberId로 엔티티 가져오기
+    //
+    @Modifying
+    @Transactional
+    @Query(value = " " +
+            "UPDATE plan " +
+            "SET state = " +
+                "case " +
+                    "when(:now < post_date and not state = 0) then 0 " +
+                    "when(deadline < :now and :now < start_date and not state = 1) then 1 " +
+                    "when(start_date < :now and :now < end_date and not state = 2) then 2 " +
+                    "when(end_date < :now and not state = 3) then 3 " +
+                    "else state " +
+                "end " +
+            "where plan_id = :planId", nativeQuery = true)
+    void updateState(@Param("now") String now, @Param("planId") int planId);
+
+
+    Plan findById(int planId);
 }
