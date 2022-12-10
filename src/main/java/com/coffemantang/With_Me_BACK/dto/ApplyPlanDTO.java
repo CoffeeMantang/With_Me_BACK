@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -21,6 +23,10 @@ public class ApplyPlanDTO {
     private String content;
 
     private int state;
+
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
 
     public ApplyPlanDTO(final ApplyPlan applyPlan) {
 

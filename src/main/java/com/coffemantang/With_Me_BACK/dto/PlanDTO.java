@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -37,6 +38,8 @@ public class PlanDTO {
     private String theme;
 
     private int hit;
+
+    private List<PlanDetailDTO> planDetailDTOList;
 
     public PlanDTO(final Plan plan) {
 

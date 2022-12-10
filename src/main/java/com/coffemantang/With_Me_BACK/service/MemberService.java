@@ -65,62 +65,67 @@ public class MemberService {
                     .question(memberDTO.getQuestion())
                     .answer(memberDTO.getAnswer()).build();
 
-            // 이미지 처리
-            MultipartFile multipartFile = memberDTO.getFile();
-            String current_date = null;
+            int memberId = memberRepository.save(member).getMemberId();
 
-            if (!multipartFile.isEmpty()) {
-                LocalDateTime now = LocalDateTime.now();
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                current_date = now.format(dateTimeFormatter);
+            // 이미지가 있는 경우
+            if (memberDTO.checkFileNull()) {
 
-                //            String absolutePath = new File("").getAbsolutePath() + File.separator + File.separator;
-                String absolutePath = "C:" + File.separator + "withMeImgs" + File.separator + "member";
+                MultipartFile multipartFile = memberDTO.getFile().get(0);
+                String current_date = null;
 
-                //            String path = "images" + File.separator + current_date;
-                String path = absolutePath;
-                File file = new File(path);
+                if (!multipartFile.isEmpty()) {
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    current_date = now.format(dateTimeFormatter);
 
-                if (!file.exists()) {
-                    boolean wasSuccessful = file.mkdirs();
+                    //            String absolutePath = new File("").getAbsolutePath() + File.separator + File.separator;
+                    String absolutePath = "C:" + File.separator + "withMeImgs" + File.separator + "member";
 
-                    if (!wasSuccessful) {
-                        log.warn("file : was not successful");
-                    }
-                }
-                while (true) {
-                    String originalFileExtension;
-                    String contentType = multipartFile.getContentType();
+                    //            String path = "images" + File.separator + current_date;
+                    String path = absolutePath;
+                    File file = new File(path);
 
-                    if (ObjectUtils.isEmpty(contentType)) {
-                        break;
-                    } else {
-                        if (contentType.contains("image/jpeg")) {
-                            originalFileExtension = ".jpg";
-                        } else if (contentType.contains("images/png")) {
-                            originalFileExtension = ".png";
-                        } else {
-                            break;
+                    if (!file.exists()) {
+                        boolean wasSuccessful = file.mkdirs();
+
+                        if (!wasSuccessful) {
+                            log.warn("file : was not successful");
                         }
                     }
+                    while (true) {
+                        String originalFileExtension;
+                        String contentType = multipartFile.getContentType();
 
-                    String new_file_name = System.nanoTime() + originalFileExtension;
+                        if (ObjectUtils.isEmpty(contentType)) {
+                            break;
+                        } else {
+                            if (contentType.contains("image/jpeg")) {
+                                originalFileExtension = ".jpg";
+                            } else if (contentType.contains("images/png")) {
+                                originalFileExtension = ".png";
+                            } else {
+                                break;
+                            }
+                        }
 
-                    member.setProfileImg(path + file.separator + new_file_name);
+                        String new_file_name = String.valueOf(memberId);
 
-                    file = new File(absolutePath + path + File.separator + new_file_name);
-                    multipartFile.transferTo(file);
+                        member.setProfileImg(new_file_name + originalFileExtension);
 
-                    file.setWritable(true);
-                    file.setReadable(true);
-                    break;
+                        memberRepository.save(member);
+
+                        file = new File(absolutePath + File.separator + new_file_name + originalFileExtension);
+                        multipartFile.transferTo(file);
+
+                        file.setWritable(true);
+                        file.setReadable(true);
+                        break;
+                    }
                 }
             }
-            memberRepository.save(member);
 
-            MemberDTO memberDTO1 = new MemberDTO(member);
-
-            return memberDTO1;
+            MemberDTO responseMemberDTO = new MemberDTO(member);
+            return responseMemberDTO;
 
         } catch (Exception e) {
             e.printStackTrace();
