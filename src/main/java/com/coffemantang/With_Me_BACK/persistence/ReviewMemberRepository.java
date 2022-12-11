@@ -20,4 +20,7 @@ public interface ReviewMemberRepository extends JpaRepository<ReviewMember, Inte
 
     // planId, reviewer, reviewed에 맞는 평가 count
     int countByPlanIdAndReviewerAndReviewed(int planId, int reviewer, int reviewed);
+
+    // planId와 reviewer에 맞는 count
+    int countByPlanIdAndReviewer(int planId, int reviewer);
 }

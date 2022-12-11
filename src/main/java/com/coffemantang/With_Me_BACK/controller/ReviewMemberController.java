@@ -9,10 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -56,10 +53,10 @@ public class ReviewMemberController {
 
     // 평가 리스트
     @PostMapping("/list")
-    public ResponseEntity<?> listReview(@AuthenticationPrincipal String memberId, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<?> listReview(@RequestParam int targetMemberId, @PageableDefault(size = 10) Pageable pageable) {
 
         try {
-            List<ReviewMemberDTO> reviewMemberDTOList = reviewMemberService.listReview(Integer.parseInt(memberId), pageable);
+            List<ReviewMemberDTO> reviewMemberDTOList = reviewMemberService.listReview(targetMemberId, pageable);
             return ResponseEntity.ok().body(reviewMemberDTOList);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
