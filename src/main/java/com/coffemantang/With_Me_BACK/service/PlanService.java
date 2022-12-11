@@ -54,15 +54,18 @@ public class PlanService {
     // 여행 일정 추가
     public PlanDTO addPlan(int memberId, PlanDTO planDTO) {
 
+        // 여행은 종료되었는데 check가 0이면 1로 변경
+        planMembersRepository.updateCheck1(memberId);
+
         if(memberId != planDTO.getMemberId()) {
             log.warn("PlanService.addPlan() : 로그인된 유저와 작성자가 다릅니다.");
             throw new RuntimeException("PlanService.addPlan() : 로그인된 유저와 작성자가 다릅니다.");
         }
+        // 조건 체크
+        checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
 
         try {
 
-            // 조건 체크
-            checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
             // 엔티티에 저장
             Plan plan = new Plan();
             plan.setMemberId(planDTO.getMemberId());
@@ -125,5 +128,7 @@ public class PlanService {
         return responseCheckDTO;
 
     }
+
+
 
 }
