@@ -25,6 +25,8 @@ public class ReviewPlanDTO {
 
     private String content;
 
+    private List<ReviewPlanImgDTO> reviewPlanImgDTOList;
+
     private List<MultipartFile> files;
 
     private List<String> reviewFiles;

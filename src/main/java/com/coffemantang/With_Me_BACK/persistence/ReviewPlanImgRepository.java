@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ReviewPlanImgRepository extends JpaRepository<ReviewPlanImg, Integer> {
     List<ReviewPlanImg> findByReviewPlanId(int reviewPlanId);
+
+    ReviewPlanImg findTop1ByReviewPlanId(int reviewPlanId);
 }
