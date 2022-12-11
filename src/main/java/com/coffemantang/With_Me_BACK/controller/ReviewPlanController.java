@@ -1,6 +1,5 @@
 package com.coffemantang.With_Me_BACK.controller;
 
-import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.dto.ResponseDTO;
 import com.coffemantang.With_Me_BACK.dto.ReviewPlanDTO;
 import com.coffemantang.With_Me_BACK.service.ReviewPlanService;
@@ -37,6 +36,49 @@ public class ReviewPlanController {
 
     }
 
+    // 여행 리뷰 수정
+    @PostMapping("/update")
+    public ResponseEntity<?> updateReviewPlan(@AuthenticationPrincipal String memberId, ReviewPlanDTO reviewPlanDTO) {
+
+        try {
+            ReviewPlanDTO responseReviewPlanDTO = reviewPlanService.updateReviewPlan(Integer.parseInt(memberId), reviewPlanDTO);
+            return ResponseEntity.ok().body(responseReviewPlanDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 여행 리뷰 삭제
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteReviewPlan(@AuthenticationPrincipal String memberId, @RequestBody ReviewPlanDTO reviewPlanDTO) {
+
+        try {
+            reviewPlanService.deleteReviewPlan(Integer.parseInt(memberId), reviewPlanDTO);
+            ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 여행 리뷰 보기
+    @PostMapping("/view")
+    public ResponseEntity<?> viewReviewPlan(@RequestBody ReviewPlanDTO reviewPlanDTO) {
+
+        try {
+            ReviewPlanDTO responseDTO = reviewPlanService.viewReviewPlan(reviewPlanDTO);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
     // 프로필 대상이 쓴 여행 리뷰 리스트
     @PostMapping("/list")
     public ResponseEntity<?> listReviewPlan(@RequestParam int targetMemberId, @PageableDefault(size = 10) Pageable pageable) {
@@ -51,20 +93,5 @@ public class ReviewPlanController {
 
     }
 
-
-
-    // 여행 리뷰 보기
-//    @PostMapping("/view")
-//    public ResponseEntity<?> viewReviewPlan(@RequestParam int targetMemberId, @RequestBody ReviewPlanDTO reviewPlanDTO) {
-//
-//        try {
-//            ReviewPlanDTO responseDTO = reviewPlanService.viewReviewPlan(targetMemberId, reviewPlanDTO);
-//            return ResponseEntity.ok().body(responseDTO);
-//        } catch (Exception e) {
-//            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
-//            return ResponseEntity.badRequest().body(responseDTO);
-//        }
-//
-//    }
 
 }

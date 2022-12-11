@@ -28,7 +28,7 @@ public class PlanMembers {
     @JoinColumn(name = "member_id")
     private int memberId;
 
-    @Column(name = "check")
-    private int check;
+    @Column(name = "check_review")
+    private int checkReview;
 
 }

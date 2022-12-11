@@ -80,6 +80,7 @@ public class ApplyPlanService {
                     PlanMembers planMembers = new PlanMembers();
                     planMembers.setPlanId(applyPlan.getPlanId());
                     planMembers.setMemberId(applyPlan.getMemberId());
+                    planMembers.setCheckReview(0);
                     planMembersRepository.save(planMembers);
                     break;
                 case 1 :

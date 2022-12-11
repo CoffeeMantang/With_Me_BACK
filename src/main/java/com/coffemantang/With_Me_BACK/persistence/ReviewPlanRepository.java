@@ -11,4 +11,7 @@ public interface ReviewPlanRepository extends JpaRepository<ReviewPlan, Integer>
     int countByPlanIdAndReviewer(int planId, int memberId);
 
     Page<ReviewPlan> findByReviewer(int reviewer, Pageable pageable);
+
+    // id로 엔티티 가져오기
+    ReviewPlan findByReviewPlanId(int reviewPlanId);
 }
