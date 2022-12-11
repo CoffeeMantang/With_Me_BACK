@@ -30,7 +30,7 @@ public class NonMemberController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<?> registerMember(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<?> registerMember(MemberDTO memberDTO) {
 
         try {
             MemberDTO registeredMember = memberService.add(memberDTO);

@@ -40,4 +40,7 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
 
 
     Plan findById(int planId);
+
+    // planId에 맞는 여행이 state가 3이면 카운트
+    int countByPlanIdAndState(int planId, int state);
 }

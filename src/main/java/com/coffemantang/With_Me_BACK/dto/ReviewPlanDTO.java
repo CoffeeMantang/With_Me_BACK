@@ -41,4 +41,9 @@ public class ReviewPlanDTO {
 
     }
 
+    // 파일 null 체크
+    public boolean checkFileNull() {
+        return this.files != null;
+    }
+
 }

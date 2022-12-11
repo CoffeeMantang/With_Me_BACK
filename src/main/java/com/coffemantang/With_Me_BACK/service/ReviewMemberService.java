@@ -22,8 +22,13 @@ public class ReviewMemberService {
 
     private final PlanMembersRepository planMembersRepository;
 
+    private final PlanMembersService planMembersService;
+
     // 평가 작성
     public void addReview(int memberId, ReviewMemberDTO reviewMemberDTO) {
+
+        // 여행은 종료되었는데 check가 0이면 1로 변경
+        planMembersRepository.updateCheck1(memberId);
 
         if(memberId != reviewMemberDTO.getReviewer()) {
             log.warn("ReviewMemberService.addReview() : 로그인된 유저와 평가 작성자가 다릅니다.");
@@ -45,6 +50,11 @@ public class ReviewMemberService {
             reviewMember.setRating(reviewMemberDTO.getRating());
             reviewMember.setContent(reviewMemberDTO.getContent());
             reviewMemberRepository.save(reviewMember);
+
+            // 해당 여행의 모든 구성원에 대한 평가를 완료했다면 이 유저의 planMembers.check를 2로 변경
+            int planMemberCount = planMembersRepository.countByPlanIdAndNotMemberId(reviewMemberDTO.getPlanId(), reviewMemberDTO.getReviewer());
+            int reviewerCount = reviewMemberRepository.countByPlanIdAndReviewer(reviewMemberDTO.getPlanId(), reviewMemberDTO.getReviewer());
+            if (planMemberCount == reviewerCount) planMembersRepository.updateCheck2(reviewMemberDTO.getPlanId(), reviewMemberDTO.getReviewer(), 2);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,11 +86,11 @@ public class ReviewMemberService {
     }
 
     // 내가 받은 리뷰 리스트
-    public List<ReviewMemberDTO> listReview(int memberId, Pageable pageable) {
+    public List<ReviewMemberDTO> listReview(int targetMemberId, Pageable pageable) {
 
         try {
 
-            Page<ReviewMember> reviewMemberPage = reviewMemberRepository.findByReviewed(memberId, pageable);
+            Page<ReviewMember> reviewMemberPage = reviewMemberRepository.findByReviewed(targetMemberId, pageable);
             List<ReviewMember> reviewMemberList =reviewMemberPage.getContent();
             List<ReviewMemberDTO> reviewMemberDTOList =new ArrayList<>();
             for (ReviewMember reviewMember : reviewMemberList) {
