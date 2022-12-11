@@ -1,17 +1,20 @@
 package com.coffemantang.With_Me_BACK.controller;
 
-import com.coffemantang.With_Me_BACK.dto.CheckDTO;
 import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.dto.ResponseDTO;
 import com.coffemantang.With_Me_BACK.service.PlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -20,21 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlanController {
 
     private final PlanService planService;
-
-    // 조건 체크
-//    @PostMapping("/check")
-//    public ResponseEntity<?> checkCondition(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
-//
-//        try {
-//            planService.checkCondition(planDTO);
-//            ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
-//            return ResponseEntity.ok().body(responseDTO);
-//        } catch (Exception e) {
-//            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
-//            return ResponseEntity.badRequest().body(responseDTO);
-//        }
-//
-//    }
 
     // 여행 일정 추가
     @PostMapping("/add")
@@ -50,19 +38,49 @@ public class PlanController {
 
     }
 
-    @PostMapping("/test")
-    public ResponseEntity<?> test(@AuthenticationPrincipal String memberId, @RequestBody CheckDTO checkDTO) {
+    // 여행 일정 수정
+
+    // 여행 일정 삭제
+    @PostMapping("/delete")
+    public ResponseEntity<?> deletePlan(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
 
         try {
-            PlanDTO planDTO = new PlanDTO();
-            planDTO.setPlanId(checkDTO.getPlanId());
-            CheckDTO newchd = new CheckDTO(planDTO);
-            CheckDTO checkDTO1 = planService.checkState(newchd);
-            return ResponseEntity.ok().body(checkDTO1);
+            planService.deletePlan(Integer.parseInt(memberId), planDTO);
+            ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
+            return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
 
     }
+
+    // 여행 일정 보기
+    @PostMapping("/view")
+    public ResponseEntity<?> viewPlan(@RequestBody PlanDTO planDTO) {
+
+        try {
+            PlanDTO responsePlanDTO = planService.viewPlan(planDTO);
+            return ResponseEntity.ok().body(responsePlanDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 여행 일정 리스트
+//    @PostMapping("/list")
+//    public ResponseEntity<?> listPlan(@PageableDefault(size = 10) Pageable pageable) {
+//
+//        try {
+//            List<PlanDTO> responsePlanDTOList = planService.listPlan(pageable);
+//            return ResponseEntity.ok().body(responsePlanDTOList);
+//        } catch (Exception e) {
+//            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+//            return ResponseEntity.badRequest().body(responseDTO);
+//        }
+//
+//    }
+
 }

@@ -1,6 +1,8 @@
 package com.coffemantang.With_Me_BACK.persistence;
 
 import com.coffemantang.With_Me_BACK.model.Plan;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -43,4 +45,6 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
 
     // planId에 맞는 여행이 state가 3이면 카운트
     int countByPlanIdAndState(int planId, int state);
+
+//    Page<Plan> findAllOrderByPlanIdDESC(Pageable pageable);
 }

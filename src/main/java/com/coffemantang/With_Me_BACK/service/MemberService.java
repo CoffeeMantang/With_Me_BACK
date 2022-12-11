@@ -173,7 +173,7 @@ public class MemberService {
             // 평점 평균 가져오기
             double rating = reviewMemberRepository.selectAVGRatingByReviewed(member.getMemberId());
             // 여행 횟수 가져오기
-            int travelRecord = planMembersRepository.selectCountByMemberIdAndCheckGreaterThan(member.getMemberId(), 0);
+            int travelRecord = planMembersRepository.selectCountByMemberIdAndCheckReviewGreaterThan(member.getMemberId(), 0);
 
             //MemberDTO 생성
             MemberDTO responseMemberDTO = new MemberDTO();

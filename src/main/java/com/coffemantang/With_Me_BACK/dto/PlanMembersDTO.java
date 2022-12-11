@@ -18,7 +18,7 @@ public class PlanMembersDTO {
 
     private int memberId;
 
-    private int check;
+    private int checkReview;
 
     private String nickname;
 
@@ -27,7 +27,7 @@ public class PlanMembersDTO {
 //        this.planMembersId = planMembers.getPlanMembersId();
         this.planId = planMembers.getPlanId();
         this.memberId = planMembers.getMemberId();
-        this.check = planMembers.getCheck();
+        this.checkReview = planMembers.getCheckReview();
 
     }
 
