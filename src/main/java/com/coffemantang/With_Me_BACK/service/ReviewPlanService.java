@@ -165,7 +165,6 @@ public class ReviewPlanService {
 
         try {
 
-            System.out.println(reviewPlanDTO);
             ReviewPlan reviewPlan = reviewPlanRepository.findByReviewPlanId(reviewPlanDTO.getReviewPlanId());
             reviewPlan.setReviewer(reviewPlanDTO.getReviewer());
             reviewPlan.setPlanId(reviewPlanDTO.getPlanId());

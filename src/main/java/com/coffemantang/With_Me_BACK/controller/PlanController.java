@@ -39,6 +39,18 @@ public class PlanController {
     }
 
     // 여행 일정 수정
+    @PostMapping("/update")
+    public ResponseEntity<?> updatePlan(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
+
+        try {
+            PlanDTO responsePlanDTO = planService.updatePlan(Integer.parseInt(memberId), planDTO);
+            return ResponseEntity.ok().body(responsePlanDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
 
     // 여행 일정 삭제
     @PostMapping("/delete")

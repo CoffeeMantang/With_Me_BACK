@@ -11,4 +11,6 @@ public interface PlanDetailRepository extends JpaRepository<PlanDetail, Integer>
 
     // planId로 planDetailList 가져오기
     List<PlanDetail> findByPlanId(int planId);
+
+    PlanDetail findById(int planId);
 }
