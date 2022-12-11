@@ -31,6 +31,8 @@ public class PlanService {
 
     private final PlanMembersRepository planMembersRepository;
 
+    private final PlanDetailService planDetailService;
+
     // 조건 체크
     public void checkCondition(int memberId, LocalDateTime startDate, LocalDateTime endDate) {
 
@@ -143,6 +145,45 @@ public class PlanService {
     }
 
     // 여행 일정 수정
+    public PlanDTO updatePlan(int memberId, PlanDTO planDTO) {
+
+        if(memberId != planDTO.getMemberId()) {
+            log.warn("PlanService.updatePlan() : 로그인된 유저와 작성자가 다릅니다.");
+            throw new RuntimeException("PlanService.updatePlan() : 로그인된 유저와 작성자가 다릅니다.");
+        }
+        // 조건 체크
+        if(planDTO.getState() > 1) {
+            log.warn("PlanService.updatePlan() : 여행이 시작된 후엔 수정할 수 없습니다.");
+            throw new RuntimeException("PlanService.updatePlan() : 여행이 시작된 후엔 수정할 수 없습니다.");
+        }
+        checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
+
+        try {
+            System.out.println(planDTO);
+            // 엔티티에 저장
+            Plan plan = planRepository.findById(planDTO.getPlanId());
+            plan.setMemberId(planDTO.getMemberId());
+            plan.setTitle(planDTO.getTitle());
+            plan.setPersonnel(planDTO.getPersonnel());
+            plan.setPostDate(planDTO.getPostDate());
+            plan.setDeadline(planDTO.getDeadline());
+            plan.setStartDate(planDTO.getStartDate());
+            plan.setEndDate(planDTO.getEndDate());
+            plan.setNotice(planDTO.getNotice());
+            plan.setTheme(planDTO.getTheme());
+            planRepository.save(plan);
+
+            // 저장한 엔티티 DTO에 담아서 리턴
+            PlanDTO responsePlanDTO = new PlanDTO(plan);
+
+            return responsePlanDTO;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("PlanService.updatePlan() : 에러 발생.");
+        }
+
+    }
 
     // 여행 일정 삭제
     public void deletePlan(int memberId, PlanDTO planDTO) {
@@ -155,17 +196,7 @@ public class PlanService {
         try {
 
             Plan plan = planRepository.findById(planDTO.getPlanId());
-            List<PlanDetail> planDetailList = planDetailRepository.findByPlanId(planDTO.getPlanId());
-            for (PlanDetail planDetail : planDetailList) {
-                if (planDetail.getDetailImg() != null) {
-                    String tempPath = "C:" + File.separator + "withMeImgs" + File.separator + "planDetail" + File.separator + planDetail.getDetailImg();
-                    File delFile = new File(tempPath);
-                    // 해당 파일이 존재하는지 한번 더 체크 후 삭제
-                    if(delFile.isFile()){
-                        delFile.delete();
-                    }
-                }
-            }
+            planDetailService.deleteDetail(planDTO.getPlanId());
             planRepository.delete(plan);
 
         } catch (Exception e) {
@@ -204,6 +235,8 @@ public class PlanService {
         }
 
     }
+
+
 
     // 여행 일정 리스트
 //    public List<PlanDTO> listPlan(Pageable pageable) {
