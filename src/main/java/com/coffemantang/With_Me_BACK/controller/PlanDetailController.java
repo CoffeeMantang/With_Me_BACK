@@ -25,11 +25,25 @@ public class PlanDetailController {
 
     // 여행 일정 디테일 추가
     @PostMapping("/add")
-    public ResponseEntity<?> addPlan(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDetailDTOList) {
+    public ResponseEntity<?> addPlan(@AuthenticationPrincipal String memberId, PlanDTO planDetailDTOList) {
 
         try {
             planDetailService.addDetail(Integer.parseInt(memberId), planDetailDTOList);
             ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 여행 일정 디테일 수정
+    @PostMapping("/update")
+    public ResponseEntity<?> updateDetail(@AuthenticationPrincipal String memberId, PlanDTO planDetailDTOList) {
+
+        try {
+            List<PlanDetailDTO> responseDTO = planDetailService.updateDetail(Integer.parseInt(memberId), planDetailDTOList);
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
