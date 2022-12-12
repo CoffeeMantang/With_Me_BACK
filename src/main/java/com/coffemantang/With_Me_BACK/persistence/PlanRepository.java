@@ -42,6 +42,11 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
             "where plan_id = :planId", nativeQuery = true)
     void updateState(@Param("now") String now, @Param("planId") int planId);
 
+    // 조회수 증가
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE plan SET hit = hit + 1 WHERE plan_id = :planId", nativeQuery = true)
+    void updateHit(@Param("planId") int planId);
 
     Plan findById(int planId);
 

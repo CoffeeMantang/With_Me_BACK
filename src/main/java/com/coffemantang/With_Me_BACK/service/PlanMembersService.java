@@ -42,7 +42,9 @@ public class PlanMembersService {
             List<PlanMembersDTO> planMembersDTOList = new ArrayList<>();
             for (PlanMembers planMembers : planMembersList) {
                 PlanMembersDTO planMembersDTO = PlanMembersDTO.builder()
-                            .planId(planMembers.getPlanId()).build();
+                        .planId(planMembers.getPlanId())
+                        .planMembersId(planMembers.getPlanMembersId())
+                        .build();
                 planMembersDTO.setNickname(memberRepository.findNicknameByMemberId(planMembers.getMemberId()));
                 planMembersDTOList.add(planMembersDTO);
             }

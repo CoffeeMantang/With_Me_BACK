@@ -393,6 +393,9 @@ public class PlanService {
 
             // 여행 엔티티 가져오기
             Plan plan = planRepository.findById(planDTO.getPlanId());
+            // 조회수 증가
+            plan.setHit(plan.getHit() + 1);
+            planRepository.save(plan);
             // 여행 디테일 리스트 가져와서 이미지 설정
             List<PlanDetail> planDetailList = planDetailRepository.findByPlanId(planDTO.getPlanId());
             List<PlanDetailDTO> planDetailDTOList = new ArrayList<>();

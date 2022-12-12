@@ -2,7 +2,6 @@ package com.coffemantang.With_Me_BACK.service;
 
 import com.coffemantang.With_Me_BACK.dto.ApplyPlanDTO;
 import com.coffemantang.With_Me_BACK.dto.CheckDTO;
-import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.model.ApplyPlan;
 import com.coffemantang.With_Me_BACK.model.PlanMembers;
 import com.coffemantang.With_Me_BACK.persistence.ApplyPlanRepository;
@@ -13,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -119,5 +119,56 @@ public class ApplyPlanService {
             throw new RuntimeException("ApplyPlanService.cancelApply() : 에러 발생");
         }
 
+    }
+
+    // 받은 신청 리스트
+    public List<ApplyPlanDTO> receivedList(int memberId) {
+
+        try {
+
+            List<ApplyPlan> applyPlanList = applyPlanRepository.selectApplyListByMemberIdOrderByApplyPlanIdDesc(memberId, 0);
+            List<ApplyPlanDTO> applyPlanDTOList = new ArrayList<>();
+            for (ApplyPlan applyPlan : applyPlanList) {
+                ApplyPlanDTO applyPlanDTO = ApplyPlanDTO.builder()
+                        .planId(applyPlan.getPlanId())
+                        .content(applyPlan.getContent())
+                        .applyPlanId(applyPlan.getApplyPlanId())
+                        .nickname(memberRepository.findNicknameByMemberId(applyPlan.getMemberId()))
+                        .build();
+                applyPlanDTOList.add(applyPlanDTO);
+            }
+
+            return applyPlanDTOList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("ApplyPlanService.receivedList() : 에러 발생");
+        }
+    }
+
+    // 보낸 신청 리스트
+    public List<ApplyPlanDTO> responseList(int memberId) {
+
+        try {
+
+            List<ApplyPlan> applyPlanList = applyPlanRepository.findByMemberIdAndStateLessThanOrderByApplyPlanIdDesc(memberId, 3);
+            List<ApplyPlanDTO> applyPlanDTOList = new ArrayList<>();
+            for (ApplyPlan applyPlan : applyPlanList) {
+                ApplyPlanDTO applyPlanDTO = ApplyPlanDTO.builder()
+                        .planId(applyPlan.getPlanId())
+                        .content(applyPlan.getContent())
+                        .applyPlanId(applyPlan.getApplyPlanId())
+                        .state(applyPlan.getState())
+                        .nickname(memberRepository.findNicknameByMemberId(applyPlan.getMemberId()))
+                        .build();
+                applyPlanDTOList.add(applyPlanDTO);
+            }
+
+            return applyPlanDTOList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("ApplyPlanService.responseList() : 에러 발생");
+        }
     }
 }
