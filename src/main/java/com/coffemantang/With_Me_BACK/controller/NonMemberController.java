@@ -3,6 +3,7 @@ package com.coffemantang.With_Me_BACK.controller;
 import com.coffemantang.With_Me_BACK.dto.MemberDTO;
 import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.dto.ResponseDTO;
+import com.coffemantang.With_Me_BACK.dto.ReviewMemberDTO;
 import com.coffemantang.With_Me_BACK.security.TokenProvider;
 import com.coffemantang.With_Me_BACK.service.EmailTokenService;
 import com.coffemantang.With_Me_BACK.service.MemberService;

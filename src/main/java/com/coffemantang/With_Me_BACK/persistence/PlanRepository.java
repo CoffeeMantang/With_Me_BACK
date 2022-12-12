@@ -51,7 +51,14 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     // 지역으로 검색하기(최신순)
     Page<Plan> findAllByPlaceLikeOrderByPostDateDesc(String place, Pageable pageable);
 
-//    Page<Plan> findAllOrderByPlanIdDESC(Pageable pageable);
+    // PlanId와 memberId 에 맞는 로우가 있으면 카운트
+    int countByPlanIdAndMemberId(int planId, int memberId);
+
+    // 나의 여행 리스트 가져오기 (최신순)
+    @Query(value = "SELECT * FROM plan p INNER JOIN plan_members pm ON p.plan_id = pm.plan_id " +
+            "WHERE pm.member_id = :memberId ORDER BY post_date DESC", nativeQuery = true)
+    Page<Plan> findByMemberIdOrderByPostDateDesc(int memberId, Pageable pageable);
+
 
 
 }

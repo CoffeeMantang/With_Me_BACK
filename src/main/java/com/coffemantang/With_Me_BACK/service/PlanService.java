@@ -7,10 +7,7 @@ import com.coffemantang.With_Me_BACK.model.Member;
 import com.coffemantang.With_Me_BACK.model.Plan;
 import com.coffemantang.With_Me_BACK.model.PlanDetail;
 import com.coffemantang.With_Me_BACK.model.PlanMembers;
-import com.coffemantang.With_Me_BACK.persistence.MemberRepository;
-import com.coffemantang.With_Me_BACK.persistence.PlanDetailRepository;
-import com.coffemantang.With_Me_BACK.persistence.PlanMembersRepository;
-import com.coffemantang.With_Me_BACK.persistence.PlanRepository;
+import com.coffemantang.With_Me_BACK.persistence.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,6 +36,8 @@ public class PlanService {
 
     private final PlanDetailService planDetailService;
     private final MemberRepository memberRepository;
+
+    private final ReviewPlanRepository reviewPlanRepository;
 
     // 조건 체크
     public void checkCondition(int memberId, LocalDateTime startDate, LocalDateTime endDate) {
@@ -368,9 +367,9 @@ public class PlanService {
     // 여행 일정 삭제
     public void deletePlan(int memberId, PlanDTO planDTO) {
 
-        if(memberId != planDTO.getMemberId()) {
-            log.warn("PlanService.deletePlan() : 로그인된 유저와 작성자가 다릅니다.");
-            throw new RuntimeException("PlanService.deletePlan() : 로그인된 유저와 작성자가 다릅니다.");
+        if(1 != planRepository.countByPlanIdAndMemberId(memberId, planDTO.getPlanId())) {
+            log.warn("PlanService.deletePlan() : 해당 Plan의 작성자가 아닙니다.");
+            throw new RuntimeException("PlanService.deletePlan() : 해당 Plan의 작성자가 아닙니다.");
         }
 
         try {
@@ -440,24 +439,47 @@ public class PlanService {
 
 
 
-    // 여행 일정 리스트
-//    public List<PlanDTO> listPlan(Pageable pageable) {
-//
-//        try {
-//
-//            Page<Plan> planPage = planRepository.findAllOrderByPlanIdDESC(pageable);
-//            List<Plan> planList = planPage.getContent();
-//            List<PlanDTO> planDTOList = new ArrayList<>();
-//
-//            for (Plan plan : planList) {
-//                PlanDTO planDTO = new PlanDTO(plan);
-//                planDTOList.add(planDTO);
-//            }
-//            return planDTOList;
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new RuntimeException("PlanService.listPlan() : 에러 발생.");
-//        }
-//    }
+    // 나의 여행 일정 리스트
+    public List<PlanDTO> listPlan(int memberId, Pageable pageable) {
+
+        try {
+
+            Page<Plan> planPage = planRepository.findByMemberIdOrderByPostDateDesc(memberId, pageable);
+            List<Plan> planList = planPage.getContent();
+            List<PlanDTO> planDTOList = new ArrayList<>();
+
+            for (Plan plan : planList) {
+                PlanDTO planDTO = PlanDTO.builder()
+                        .planId(plan.getPlanId())
+                        .title(plan.getTitle())
+                        .postDate(plan.getPostDate())
+                        .deadline(plan.getDeadline())
+                        .startDate(plan.getStartDate())
+                        .endDate(plan.getEndDate())
+                        .state(plan.getState())
+                        .build();
+                // 구성원 평가 작성 상태
+                planDTO.setReviewMemberState(planMembersRepository.selectCheckByPlanIdAndMemberId(plan.getPlanId(), memberId));
+                // 일정 리뷰 작성 상태
+                switch (plan.getState()) {
+                    case 0 :
+                    case 1 :
+                    case 2 : // 여행 끝나지 않음
+                        planDTO.setReviewPlanState(0);
+                        break;
+                    case 3 : // 여행 끝난 후 작성하지 않았다면 1 , 했다면 2 할당
+                        if(0 == reviewPlanRepository.countByPlanIdAndReviewer(plan.getPlanId(), memberId)) planDTO.setReviewPlanState(1);
+                        else planDTO.setReviewPlanState(2);
+                        break;
+                }
+                // dto 리스트에 dto 추가
+                planDTOList.add(planDTO);
+            }
+            return planDTOList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("PlanService.listPlan() : 에러 발생.");
+        }
+    }
 }
