@@ -19,6 +19,7 @@ bin/
 
 apllication.properties
 application-dk.properties
+application-asdf.properties
 
 ### IntelliJ IDEA ###
 .idea
