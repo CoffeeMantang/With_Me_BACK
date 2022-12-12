@@ -232,6 +232,26 @@ public class PlanService {
 
     }
 
+    // Plan 지역으로 검색하기
+    public List<PlanDTO> planSearch(final String keyword, final Pageable pageable) throws Exception{
+        try{
+            Page<Plan> pPlan = planRepository.findAllPlaceLikeOrderByPostDateDesc(keyword, pageable);
+            List<Plan> lPlan = pPlan.getContent();
+            List<PlanDTO> resultList = new ArrayList<>();
+            for(Plan plan : lPlan){
+                PlanDTO planDTO = PlanDTO.builder().deadline(plan.getDeadline()).planId(plan.getPlanId())
+                        .startDate(plan.getStartDate()).endDate(plan.getEndDate())
+                        .personnel(plan.getPersonnel()).state(plan.getState()).postDate(plan.getPostDate())
+                        .hit(plan.getHit()).title(plan.getTitle()).build();
+                resultList.add(planDTO);
+            }
+            return resultList;
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
+
 
 
     // 여행 일정 리스트
