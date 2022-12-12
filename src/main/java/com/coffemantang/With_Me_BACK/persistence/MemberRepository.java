@@ -27,4 +27,24 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 
     // memberId로 엔티티 가져오기
     Member findByMemberId(int memberId);
+
+    // memberId로 질문가져오기
+    @Query(value = "SELECT question FROM member WHERE member_id = :memberId", nativeQuery = true)
+    String findQuestionByMemberId(@Param("memberId") int memberId);
+
+    // 아이디와 답변으로 매칭되는 컬럼 찾기
+    @Query(value = "SELECT COUNT(member_id) FROM member WHERE member_id = :memberId AND answer = :answer", nativeQuery = true)
+    int findByAnswer(@Param("memberId") int memberId, @Param("answer") String answer);
+
+    // 아이디로 비밀번호 가져오기
+    @Query(value = "SELECT password FROM member WHERE member_id = :memberId", nativeQuery = true)
+    String findPasswordByMemberId(@Param("memberId") int memberId);
+
+    // 아이디로 이름 가져오기
+    @Query(value = "SELECT name FROM member WHERE member_id = :memberId", nativeQuery = true)
+    String findNameByMemberId(@Param("memberId") int memberId);
+
+    // 비밀번호 질문답변 가져오기
+    @Query(value = "SELECT question, answer FROM member WHERE member_id = :memberId", nativeQuery = true)
+    Member findQuestionAnswerByMemberId(@Param("memberId") int memberId);
 }

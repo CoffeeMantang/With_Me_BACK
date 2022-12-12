@@ -46,9 +46,8 @@ public class NonMemberController {
                     .email(registeredMember.getEmail())
                     .nickname(registeredMember.getNickname())
                     .build();
-//            emailTokenService.createEmailToken(registeredMember.getMemberId(), registeredMember.getEmail()); // 이메일 전송
-//            return ResponseEntity.ok().body(responseMemberDTO);
-            return ResponseEntity.ok().body(registeredMember);
+            emailTokenService.createEmailToken(registeredMember.getMemberId(), registeredMember.getEmail()); // 이메일 전송
+            return ResponseEntity.ok().body(responseMemberDTO);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
@@ -139,5 +138,54 @@ public class NonMemberController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
 
+    }
+
+    // 닉네임 중복 체크
+    @PostMapping("/check-nickname")
+    public ResponseEntity<?> checkNickname(@RequestBody MemberDTO memberDTO){
+        try{
+            boolean check = memberService.checkNickname(memberDTO.getNickname());
+            if(check){
+                MemberDTO responseMemberDTO = MemberDTO.builder().nickname(memberDTO.getNickname()).build();
+                return ResponseEntity.ok().body(responseMemberDTO);
+            }else{
+                ResponseDTO responseDTO = ResponseDTO.builder().error("error").build();
+                return ResponseEntity.badRequest().body(responseDTO);
+            }
+        }catch (Exception e){
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+
+    // 이메일 중복 체크
+    @PostMapping("/check-email")
+    public ResponseEntity<?> checkEmail(@RequestBody MemberDTO memberDTO){
+        try{
+            if(memberService.checkEmail(memberDTO.getEmail())){
+                ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
+                return ResponseEntity.ok().body(responseDTO);
+            }else{
+                ResponseDTO responseDTO = ResponseDTO.builder().error("error").build();
+                return ResponseEntity.badRequest().body(responseDTO);
+            }
+        }catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    // 인증 이메일 재전송
+    @PostMapping("/reconfirm")
+    public ResponseEntity<?> viewConfirmEmail(@RequestBody MemberDTO memberDTO){
+        try{
+            emailTokenService.createEmailToken(memberDTO.getMemberId(), memberDTO.getEmail()); // 이메일 전송
+            ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
+            return ResponseEntity.ok().body(responseDTO);
+        }catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
     }
 }
