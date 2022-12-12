@@ -1,5 +1,6 @@
 package com.coffemantang.With_Me_BACK.persistence;
 
+import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.model.Plan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface PlanRepository extends JpaRepository<Plan, Integer> {
 
@@ -46,5 +48,10 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     // planId에 맞는 여행이 state가 3이면 카운트
     int countByPlanIdAndState(int planId, int state);
 
+    // 지역으로 검색하기(최신순)
+    Page<Plan> findAllPlaceLikeOrderByPostDateDesc(String place, Pageable pageable);
+
 //    Page<Plan> findAllOrderByPlanIdDESC(Pageable pageable);
+
+
 }

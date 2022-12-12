@@ -54,4 +54,7 @@ public class Plan {
 
     @Column(name = "hit")
     private int hit; // 조회수
+
+    @Column(name = "place")
+    private String place;
 }

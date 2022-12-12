@@ -1,15 +1,22 @@
 package com.coffemantang.With_Me_BACK.controller;
 
 import com.coffemantang.With_Me_BACK.dto.MemberDTO;
+import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.dto.ResponseDTO;
 import com.coffemantang.With_Me_BACK.security.TokenProvider;
 import com.coffemantang.With_Me_BACK.service.EmailTokenService;
 import com.coffemantang.With_Me_BACK.service.MemberService;
+import com.coffemantang.With_Me_BACK.service.PlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -24,6 +31,9 @@ public class NonMemberController {
     private final MemberService memberService;
 
     private final TokenProvider tokenProvider;
+
+    @Autowired
+    private final PlanService planService;
 
     // 회원가입
     @PostMapping("/signup")
@@ -75,5 +85,16 @@ public class NonMemberController {
         }
     }
 
+    // 여행 일정 찾기
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPlan(@RequestParam(value="keyword") String keyword, @PageableDefault(size = 10) Pageable pageable) throws Exception{
+        try{
+            List<PlanDTO> result = planService.planSearch(keyword, pageable);
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
 
 }
