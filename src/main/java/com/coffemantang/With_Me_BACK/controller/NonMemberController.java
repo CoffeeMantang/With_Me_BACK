@@ -1,12 +1,10 @@
 package com.coffemantang.With_Me_BACK.controller;
 
-import com.coffemantang.With_Me_BACK.dto.MemberDTO;
-import com.coffemantang.With_Me_BACK.dto.PlanDTO;
-import com.coffemantang.With_Me_BACK.dto.ResponseDTO;
-import com.coffemantang.With_Me_BACK.dto.ReviewMemberDTO;
+import com.coffemantang.With_Me_BACK.dto.*;
 import com.coffemantang.With_Me_BACK.security.TokenProvider;
 import com.coffemantang.With_Me_BACK.service.EmailTokenService;
 import com.coffemantang.With_Me_BACK.service.MemberService;
+import com.coffemantang.With_Me_BACK.service.PlanCommentService;
 import com.coffemantang.With_Me_BACK.service.PlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +30,8 @@ public class NonMemberController {
     private final MemberService memberService;
 
     private final TokenProvider tokenProvider;
+
+    private final PlanCommentService planCommentService;
 
     @Autowired
     private final PlanService planService;
@@ -105,6 +105,35 @@ public class NonMemberController {
         try {
             PlanDTO responsePlanDTO = planService.viewPlan(planDTO);
             return ResponseEntity.ok().body(responsePlanDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+
+    // 댓글 리스트
+    @PostMapping("/list-comment")
+    public ResponseEntity<?> listcomment(@RequestBody PlanCommentDTO planCommentDTO, @PageableDefault(size = 10) Pageable pageable) {
+
+        try {
+            List<PlanCommentDTO> planCommentDTOList = planCommentService.listComment(planCommentDTO, pageable);
+            return ResponseEntity.ok().body(planCommentDTOList);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 대댓글 리스트
+    @PostMapping("/list-recomment")
+    public ResponseEntity<?> listRecomment(@RequestBody PlanCommentDTO planCommentDTO, @PageableDefault(size = 10) Pageable pageable) {
+
+        try {
+            List<PlanCommentDTO> planCommentDTOList = planCommentService.listRecomment(planCommentDTO, pageable);
+            return ResponseEntity.ok().body(planCommentDTOList);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
