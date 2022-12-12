@@ -2,6 +2,7 @@ package com.coffemantang.With_Me_BACK.service;
 
 import com.coffemantang.With_Me_BACK.dto.MemberDTO;
 import com.coffemantang.With_Me_BACK.model.Member;
+import com.coffemantang.With_Me_BACK.model.PlanDetail;
 import com.coffemantang.With_Me_BACK.persistence.MemberRepository;
 import com.coffemantang.With_Me_BACK.persistence.PlanMembersRepository;
 import com.coffemantang.With_Me_BACK.persistence.ReviewMemberRepository;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -344,5 +346,146 @@ public class MemberService {
         memberRepository.save(memberEntity);
         final Member chgMemberEntity = memberRepository.findQuestionAnswerByMemberId(memberId);
         return chgMemberEntity;
+    }
+
+    // 연락처 변경
+    public MemberDTO updateContact(int memberId, MemberDTO memberDTO) {
+
+        if (memberDTO.getContact() == null) {
+            log.warn("MemberService.updateContact() : 빈칸은 등록할 수 없습니다.");
+            throw new RuntimeException("MemberService.updateContact() : 빈칸은 등록할 수 없습니다.");
+        }
+
+        try {
+
+            Member member = memberRepository.findByMemberId(memberId);
+            member.setContact(memberDTO.getContact());
+            memberRepository.save(member);
+
+            return MemberDTO.builder().contact(memberDTO.getContact()).build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("MemberService.updateContact() : 에러 발생.");
+        }
+
+    }
+
+    // 프로필 이미지 변경
+    public MemberDTO updateProfileImg(int memberId, MemberDTO memberDTO) {
+
+
+        try {
+
+            // 이미지가 있는 경우
+            if (memberDTO.checkFileNull()) {
+
+                Member member = memberRepository.findByMemberId(memberId);
+
+                // 기존 이미지 삭제
+                if (member.getProfileImg() != null) {
+                    String tempPath = "C:" + File.separator + "withMeImgs" + File.separator + "member" + File.separator + member.getProfileImg();
+                    File delFile = new File(tempPath);
+                    // 해당 파일이 존재하는지 한번 더 체크 후 삭제
+                    if(delFile.isFile()){
+                        delFile.delete();
+                    }
+                }
+
+                MultipartFile multipartFile = memberDTO.getFile().get(0);
+                String current_date = null;
+
+                if (!multipartFile.isEmpty()) {
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    current_date = now.format(dateTimeFormatter);
+
+                    //            String absolutePath = new File("").getAbsolutePath() + File.separator + File.separator;
+                    String absolutePath = "C:" + File.separator + "withMeImgs" + File.separator + "member";
+
+                    //            String path = "images" + File.separator + current_date;
+                    String path = absolutePath;
+                    File file = new File(path);
+
+                    if (!file.exists()) {
+                        boolean wasSuccessful = file.mkdirs();
+
+                        if (!wasSuccessful) {
+                            log.warn("file : was not successful");
+                        }
+                    }
+                    while (true) {
+                        String originalFileExtension;
+                        String contentType = multipartFile.getContentType();
+
+                        if (ObjectUtils.isEmpty(contentType)) {
+                            break;
+                        } else {
+                            if (contentType.contains("image/jpeg")) {
+                                originalFileExtension = ".jpg";
+                            } else if (contentType.contains("images/png")) {
+                                originalFileExtension = ".png";
+                            } else {
+                                break;
+                            }
+                        }
+
+                        String new_file_name = String.valueOf(memberId);
+
+                        member.setProfileImg(new_file_name + originalFileExtension);
+
+                        file = new File(absolutePath + File.separator + new_file_name + originalFileExtension);
+                        multipartFile.transferTo(file);
+
+                        file.setWritable(true);
+                        file.setReadable(true);
+                        break;
+                    }
+                }
+                memberRepository.save(member);
+                return MemberDTO.builder().profileImg(member.getProfileImg()).build();
+            } else {
+                log.warn("MemberService.updateProfileImg() : 사진이 없습니다.");
+                throw new RuntimeException("MemberService.updateProfileImg() : 사진이 없습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("MemberService.updateContact() : 에러 발생.");
+        }
+
+    }
+
+    // 마이페이지 보기
+    public MemberDTO viewMyPage(int memberId, MemberDTO memberDTO) {
+
+        if (memberId != memberRepository.findIdByNickname(memberDTO.getNickname())) {
+            log.warn("MemberService.viewMyPage() : 로그인 정보가 일치하지 않습니다.");
+            throw new RuntimeException("MemberService.viewMyPage() : 로그인 정보가 일치하지 않습니다.");
+        }
+
+        try {
+
+            Member member = memberRepository.findByMemberId(memberId);
+
+            return MemberDTO.builder()
+                    .profileImg(member.getProfileImg())
+                    .contact(member.getContact())
+                    .address1(member.getAddress1())
+                    .address2(member.getAddress2())
+                    .joinDay(member.getJoinDay())
+                    .email(member.getEmail())
+                    .name(member.getName())
+                    .nickname(member.getNickname())
+                    .gender(member.getGender())
+                    .birthday(member.getBirthday())
+                    .question(member.getQuestion())
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("MemberService.viewMyPage() : 에러 발생.");
+        }
+
     }
 }

@@ -181,4 +181,45 @@ public class MemberController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
+
+    // 연락처 변경
+    @PostMapping("/update-contact")
+    public ResponseEntity<?> updateContact(@AuthenticationPrincipal String memberId, @RequestBody MemberDTO memberDTO) {
+
+        try {
+            MemberDTO responseMemberDTO = memberService.updateContact(Integer.parseInt(memberId), memberDTO);
+            return ResponseEntity.ok().body(responseMemberDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    // 프로필 이미지 변경
+    @PostMapping("/update-img")
+    public ResponseEntity<?> updateProfileImg(@AuthenticationPrincipal String memberId, @RequestBody MemberDTO memberDTO) {
+
+        try {
+            MemberDTO responseMemberDTO = memberService.updateProfileImg(Integer.parseInt(memberId), memberDTO);
+            return ResponseEntity.ok().body(responseMemberDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    // 마이페이지
+    @PostMapping("/mypage")
+    public ResponseEntity<?> viewMyPage(@AuthenticationPrincipal String memberId, @RequestBody MemberDTO memberDTO) {
+
+        try {
+            MemberDTO responseMemberDTO = memberService.viewMyPage(Integer.parseInt(memberId), memberDTO);
+            return ResponseEntity.ok().body(responseMemberDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+
 }
