@@ -64,19 +64,7 @@ public class PlanController {
 
     }
 
-    // 여행 일정 보기
-    @PostMapping("/view")
-    public ResponseEntity<?> viewPlan(@RequestBody PlanDTO planDTO) {
 
-        try {
-            PlanDTO responsePlanDTO = planService.viewPlan(planDTO);
-            return ResponseEntity.ok().body(responsePlanDTO);
-        } catch (Exception e) {
-            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
-
-    }
 
 
 

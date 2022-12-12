@@ -98,4 +98,17 @@ public class NonMemberController {
         }
     }
 
+    // 여행 일정 보기
+    @GetMapping("/view")
+    public ResponseEntity<?> viewPlan(PlanDTO planDTO) {
+
+        try {
+            PlanDTO responsePlanDTO = planService.viewPlan(planDTO);
+            return ResponseEntity.ok().body(responsePlanDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
 }
