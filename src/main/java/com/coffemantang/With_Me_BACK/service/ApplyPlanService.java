@@ -6,6 +6,7 @@ import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.model.ApplyPlan;
 import com.coffemantang.With_Me_BACK.model.PlanMembers;
 import com.coffemantang.With_Me_BACK.persistence.ApplyPlanRepository;
+import com.coffemantang.With_Me_BACK.persistence.MemberRepository;
 import com.coffemantang.With_Me_BACK.persistence.PlanMembersRepository;
 import com.coffemantang.With_Me_BACK.persistence.PlanRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,19 +28,21 @@ public class ApplyPlanService {
 
     private final PlanService planService;
 
+    private final MemberRepository memberRepository;
+
     // 여행 참여 신청
     public void applyPlan(int memberId, ApplyPlanDTO applyPlanDTO) {
 
         try {
 
             // 아이디 검사
-            if(memberId != applyPlanDTO.getMemberId()) {
+            if(memberId != memberRepository.findIdByNickname(applyPlanDTO.getNickname())) {
                 log.warn("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
                 throw new RuntimeException("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
             }
 
             // 신청 중복 검사
-            long chk = planMembersRepository.countByPlanIdAndMemberId(memberId, applyPlanDTO.getMemberId());
+            long chk = planMembersRepository.countByPlanIdAndMemberId(memberId, memberRepository.findIdByNickname(applyPlanDTO.getNickname()));
             if (chk > 0) {
                 log.warn("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
                 throw new RuntimeException("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
@@ -50,7 +53,7 @@ public class ApplyPlanService {
             planService.checkCondition(memberId, applyPlanDTO.getStartDate(), applyPlanDTO.getEndDate());
 
             ApplyPlan applyPlan = new ApplyPlan();
-            applyPlan.setMemberId(applyPlanDTO.getMemberId());
+            applyPlan.setMemberId(memberId);
             applyPlan.setPlanId(applyPlanDTO.getPlanId());
             applyPlan.setContent(applyPlanDTO.getContent());
             applyPlan.setState(0);
@@ -100,7 +103,7 @@ public class ApplyPlanService {
     // 신청 취소
     public void cancelApply(int memberId, ApplyPlanDTO applyPlanDTO) {
 
-        if(memberId != applyPlanDTO.getMemberId()) {
+        if(memberId != memberRepository.findIdByNickname(applyPlanDTO.getNickname())) {
             log.warn("ApplyPlanService.cancelApply() : 로그인된 유저와 신청자가 다릅니다.");
             throw new RuntimeException("ApplyPlanService.cancelApply() : 로그인된 유저와 신청자가 다릅니다.");
         }

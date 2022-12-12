@@ -33,6 +33,8 @@ public class ReviewPlanDTO {
 
     private List<String> images;
 
+    private String reviewerNickname;
+
     public ReviewPlanDTO(final ReviewPlan reviewPlan) {
 
         this.reviewPlanId = reviewPlan.getReviewPlanId();

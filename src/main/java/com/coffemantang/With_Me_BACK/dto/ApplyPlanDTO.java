@@ -28,6 +28,8 @@ public class ApplyPlanDTO {
 
     private LocalDateTime endDate;
 
+    private String nickname;
+
     public ApplyPlanDTO(final ApplyPlan applyPlan) {
 
         this.applyPlanId = applyPlan.getApplyPlanId();

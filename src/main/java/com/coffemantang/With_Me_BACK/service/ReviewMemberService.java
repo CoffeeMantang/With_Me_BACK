@@ -23,8 +23,6 @@ public class ReviewMemberService {
 
     private final PlanMembersRepository planMembersRepository;
 
-    private final PlanMembersService planMembersService;
-
     private final MemberRepository memberRepository;
 
     // 평가 작성
@@ -97,11 +95,11 @@ public class ReviewMemberService {
     }
 
     // 프로필 대상이 받은 리뷰 리스트
-    public List<ReviewMemberDTO> listReview(int targetMemberId, Pageable pageable) {
+    public List<ReviewMemberDTO> listReview(String targetNickname, Pageable pageable) {
 
         try {
 
-            Page<ReviewMember> reviewMemberPage = reviewMemberRepository.findByReviewed(targetMemberId, pageable);
+            Page<ReviewMember> reviewMemberPage = reviewMemberRepository.findByReviewed(memberRepository.findIdByNickname(targetNickname), pageable);
             List<ReviewMember> reviewMemberList =reviewMemberPage.getContent();
             List<ReviewMemberDTO> reviewMemberDTOList =new ArrayList<>();
             for (ReviewMember reviewMember : reviewMemberList) {

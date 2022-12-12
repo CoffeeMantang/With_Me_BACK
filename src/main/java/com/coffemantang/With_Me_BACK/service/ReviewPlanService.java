@@ -5,6 +5,7 @@ import com.coffemantang.With_Me_BACK.dto.ReviewPlanDTO;
 import com.coffemantang.With_Me_BACK.dto.ReviewPlanImgDTO;
 import com.coffemantang.With_Me_BACK.model.ReviewPlan;
 import com.coffemantang.With_Me_BACK.model.ReviewPlanImg;
+import com.coffemantang.With_Me_BACK.persistence.MemberRepository;
 import com.coffemantang.With_Me_BACK.persistence.PlanRepository;
 import com.coffemantang.With_Me_BACK.persistence.ReviewPlanImgRepository;
 import com.coffemantang.With_Me_BACK.persistence.ReviewPlanRepository;
@@ -36,14 +37,13 @@ public class ReviewPlanService {
 
     private final PlanService planService;
 
+    private final MemberRepository memberRepository;
+
     // 리뷰 작성
     public void addReviewPlan(int memberId, ReviewPlanDTO reviewPlanDTO) {
 
         planService.checkState(new CheckDTO(reviewPlanDTO.getPlanId()));
-        if(memberId != reviewPlanDTO.getReviewer()) {
-            log.warn("ReviewMemberService.addReviewPlan() : 로그인된 유저와 리뷰 작성자가 다릅니다.");
-            throw new RuntimeException("ReviewMemberService.addReviewPlan() : 로그인된 유저와 리뷰 작성자가 다릅니다.");
-        } else if ( 0 < reviewPlanRepository.countByPlanIdAndReviewer(reviewPlanDTO.getPlanId(), memberId)) {
+        if ( 0 < reviewPlanRepository.countByPlanIdAndReviewer(reviewPlanDTO.getPlanId(), memberId)) {
             log.warn("ReviewMemberService.addReviewPlan() : 이미 해당 여행에 대한 리뷰를 작성했습니다.");
             throw new RuntimeException("ReviewMemberService.addReviewPlan() : 이미 해당 여행에 대한 리뷰를 작성했습니다.");
         } else if (0 == planRepository.countByPlanIdAndState(reviewPlanDTO.getPlanId(), 3)){
@@ -55,7 +55,7 @@ public class ReviewPlanService {
 
             // 엔티티 생성
             ReviewPlan reviewPlan = new ReviewPlan();
-            reviewPlan.setReviewer(reviewPlanDTO.getReviewer());
+            reviewPlan.setReviewer(memberRepository.findIdByNickname(reviewPlanDTO.getReviewerNickname()));
             reviewPlan.setPlanId(reviewPlanDTO.getPlanId());
             reviewPlan.setRating(reviewPlanDTO.getRating());
             reviewPlan.setContent(reviewPlanDTO.getContent());
@@ -158,7 +158,7 @@ public class ReviewPlanService {
     // 여행 리뷰 수정
     public ReviewPlanDTO updateReviewPlan(int memberId, ReviewPlanDTO reviewPlanDTO) {
 
-        if(memberId != reviewPlanDTO.getReviewer()) {
+        if(memberId != memberRepository.findIdByNickname(reviewPlanDTO.getReviewerNickname())) {
             log.warn("ReviewMemberService.updateReviewPlan() : 로그인된 유저와 리뷰 작성자가 다릅니다.");
             throw new RuntimeException("ReviewMemberService.updateReviewPlan() : 로그인된 유저와 리뷰 작성자가 다릅니다.");
         }
@@ -166,8 +166,6 @@ public class ReviewPlanService {
         try {
 
             ReviewPlan reviewPlan = reviewPlanRepository.findByReviewPlanId(reviewPlanDTO.getReviewPlanId());
-            reviewPlan.setReviewer(reviewPlanDTO.getReviewer());
-            reviewPlan.setPlanId(reviewPlanDTO.getPlanId());
             reviewPlan.setRating(reviewPlanDTO.getRating());
             reviewPlan.setContent(reviewPlanDTO.getContent());
             reviewPlanRepository.save(reviewPlan);
@@ -279,7 +277,7 @@ public class ReviewPlanService {
     // 여행 리뷰 삭제
     public void deleteReviewPlan(int memberId, ReviewPlanDTO reviewPlanDTO) {
 
-        if(memberId != reviewPlanDTO.getReviewer()) {
+        if(memberId != memberRepository.findIdByNickname(reviewPlanDTO.getReviewerNickname())) {
             log.warn("ReviewMemberService.deleteReviewPlan() : 로그인된 유저와 리뷰 작성자가 다릅니다.");
             throw new RuntimeException("ReviewMemberService.deleteReviewPlan() : 로그인된 유저와 리뷰 작성자가 다릅니다.");
         }
@@ -340,11 +338,11 @@ public class ReviewPlanService {
     }
 
     // 프로필 대상이 쓴 여행 리뷰 리스트
-    public List<ReviewPlanDTO> listReviewPlan(int targetMemberId, Pageable pageable) {
+    public List<ReviewPlanDTO> listReviewPlan(String targetNickname, Pageable pageable) {
 
         try {
 
-            Page<ReviewPlan> reviewPlanPage = reviewPlanRepository.findByReviewer(targetMemberId, pageable);
+            Page<ReviewPlan> reviewPlanPage = reviewPlanRepository.findByReviewer(memberRepository.findIdByNickname(targetNickname), pageable);
             List<ReviewPlan> reviewPlanList = reviewPlanPage.getContent();
             List<ReviewPlanDTO> reviewPlanDTOList = new ArrayList<>();
 
