@@ -412,6 +412,11 @@ public class PlanService {
             long cnt = planMembersRepository.countByPlanId(planDTO.getPlanId());
             responsePlanDTO.setParticipant(cnt);
 
+            // 작성회원 정보 가져오기
+            Member member = memberRepository.findByMemberId(plan.getMemberId());
+            responsePlanDTO.setMemberId(member.getMemberId());
+            responsePlanDTO.setNickname(member.getNickname());
+
             return responsePlanDTO;
 
         } catch (Exception e) {

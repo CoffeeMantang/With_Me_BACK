@@ -114,7 +114,7 @@ public class NonMemberController {
 
     // 댓글 리스트
     @PostMapping("/list-comment")
-    public ResponseEntity<?> listcomment(@RequestBody PlanCommentDTO planCommentDTO, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<?> listcomment( PlanCommentDTO planCommentDTO, @PageableDefault(size = 10) Pageable pageable) {
 
         try {
             List<PlanCommentDTO> planCommentDTOList = planCommentService.listComment(planCommentDTO, pageable);
@@ -128,7 +128,7 @@ public class NonMemberController {
 
     // 대댓글 리스트
     @PostMapping("/list-recomment")
-    public ResponseEntity<?> listRecomment(@RequestBody PlanCommentDTO planCommentDTO, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<?> listRecomment( @RequestBody PlanCommentDTO planCommentDTO, @PageableDefault(size = 10) Pageable pageable) {
 
         try {
             List<PlanCommentDTO> planCommentDTOList = planCommentService.listRecomment(planCommentDTO, pageable);
