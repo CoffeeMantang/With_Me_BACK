@@ -26,7 +26,7 @@ public class PlanCommentService {
     // 댓글 작성
     public void addComment(int memberId, PlanCommentDTO planCommentDTO, int planId) {
 
-        if(memberId != planCommentDTO.getMemberId()) {
+        if(memberId != memberRepository.findIdByNickname(planCommentDTO.getNickname())) {
             log.warn("PlanCommentService.addComment() : 로그인된 유저와 댓글 작성자가 다릅니다.");
             throw new RuntimeException("PlanCommentService.addComment() : 로그인된 유저와 댓글 작성자가 다릅니다.");
         }
@@ -35,13 +35,14 @@ public class PlanCommentService {
 
             PlanComment planComment = new PlanComment();
             planComment.setPlanId(planId);
-            planComment.setMemberId(planCommentDTO.getMemberId());
+            planComment.setMemberId(memberId);
             planComment.setContent(planCommentDTO.getContent());
             planComment.setStage(0);
             planComment.setTurn(0);
             planComment.setCommentDate(LocalDateTime.now());
             planComment.setGroupNum(planCommentRepository.save(planComment).getPlanCommentId());
             planCommentRepository.save(planComment);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("PlanCommentService.addComment() : 에러 발생.");
@@ -82,7 +83,15 @@ public class PlanCommentService {
             List<PlanComment> planCommentList = planCommentPage.getContent();
             List<PlanCommentDTO> planCommentDTOList = new ArrayList<>();
             for (PlanComment planComment : planCommentList) {
-                PlanCommentDTO newPlanCommentDto = new PlanCommentDTO(planComment);
+                PlanCommentDTO newPlanCommentDto = PlanCommentDTO.builder()
+                            .planId(planComment.getPlanId())
+                            .content(planComment.getContent())
+                            .stage(planComment.getStage())
+                            .turn(planComment.getTurn())
+                            .groupNum(planComment.getGroupNum())
+                            .commentDate(planComment.getCommentDate())
+                            .nickname(memberRepository.findNicknameByMemberId(planComment.getMemberId()))
+                            .build();
                 planCommentDTOList.add(newPlanCommentDto);
             }
 
@@ -104,9 +113,15 @@ public class PlanCommentService {
             List<PlanComment> planCommentList = planCommentPage.getContent();
             List<PlanCommentDTO> planCommentDTOList = new ArrayList<>();
             for (PlanComment planComment : planCommentList) {
-                PlanCommentDTO newPlanCommentDto = new PlanCommentDTO(planComment);
-                // 닉네임 가져오기
-                newPlanCommentDto.setNickname(memberRepository.findNicknameByMemberId(newPlanCommentDto.getMemberId()));
+                PlanCommentDTO newPlanCommentDto = PlanCommentDTO.builder()
+                        .planId(planComment.getPlanId())
+                        .content(planComment.getContent())
+                        .stage(planComment.getStage())
+                        .turn(planComment.getTurn())
+                        .groupNum(planComment.getGroupNum())
+                        .commentDate(planComment.getCommentDate())
+                        .nickname(memberRepository.findNicknameByMemberId(planComment.getMemberId()))
+                        .build();
                 planCommentDTOList.add(newPlanCommentDto);
             }
 

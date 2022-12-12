@@ -81,10 +81,10 @@ public class ReviewPlanController {
 
     // 프로필 대상이 쓴 여행 리뷰 리스트
     @PostMapping("/list")
-    public ResponseEntity<?> listReviewPlan(@RequestParam int targetMemberId, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<?> listReviewPlan(@RequestParam String targetNickname, @PageableDefault(size = 10) Pageable pageable) {
 
         try {
-            List<ReviewPlanDTO> reviewPlanDTOList = reviewPlanService.listReviewPlan(targetMemberId, pageable);
+            List<ReviewPlanDTO> reviewPlanDTOList = reviewPlanService.listReviewPlan(targetNickname, pageable);
             return ResponseEntity.ok().body(reviewPlanDTOList);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
