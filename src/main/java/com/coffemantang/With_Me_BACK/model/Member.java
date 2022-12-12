@@ -61,4 +61,7 @@ public class Member {
     @Column(name = "profile_img")
     private String profileImg;
 
+    public void changePassword(String password){
+        this.password = password;
+    }
 }

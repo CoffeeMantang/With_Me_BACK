@@ -64,10 +64,6 @@ public class PlanController {
 
     }
 
-
-
-
-
     // 나의 여행 일정 리스트
     @PostMapping("/list")
     public ResponseEntity<?> listPlan(@AuthenticationPrincipal String memberId, @PageableDefault(size = 10) Pageable pageable) {
