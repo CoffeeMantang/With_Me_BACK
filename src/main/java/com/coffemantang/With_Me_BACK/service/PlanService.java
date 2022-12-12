@@ -13,9 +13,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -99,7 +102,9 @@ public class PlanService {
     // 여행 일정 추가
     @Transactional
     public PlanDTO addPlan(int memberId, PlanDTO planDTO) {
+
         try {
+
             // 여행은 종료되었는데 check가 0이면 1로 변경
             planMembersRepository.updateCheck1(memberId);
 
@@ -119,7 +124,91 @@ public class PlanService {
             plan.setNotice(planDTO.getNotice());
             plan.setTheme(planDTO.getTheme());
             plan.setHit(0);
+            plan.setPlace(planDTO.getPlace());
+
             int planId = planRepository.save(plan).getPlanId();
+
+            // 저장한 엔티티 DTO에 담아서 리턴
+            PlanDTO responsePlanDTO = new PlanDTO(plan);
+            // PlanDetail 추가
+            if (planDTO.getPlanDetailDTOList() != null) {
+
+                List<PlanDetailDTO> planDetailDTOList = new ArrayList<>();
+                for (PlanDetailDTO planDetailDTO : planDTO.getPlanDetailDTOList()) {
+
+                    // 엔티티 빌더
+                    PlanDetail planDetail = PlanDetail.builder()
+                            .planId(planId)
+                            .detailDate(planDetailDTO.getDetailDate())
+                            .content(planDetailDTO.getContent())
+                            .build();
+
+                    int planDetailId = planDetailRepository.save(planDetail).getPlanDetailId();
+
+                    // 이미지가 있는 경우
+                    if (planDetailDTO.checkFileNull()) {
+
+                        MultipartFile multipartFile = planDetailDTO.getFile().get(0);
+                        String current_date = null;
+
+                        if (!multipartFile.isEmpty()) {
+                            LocalDateTime now = LocalDateTime.now();
+                            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                            current_date = now.format(dateTimeFormatter);
+
+                            String absolutePath = "C:" + File.separator + "withMeImgs" + File.separator + "planDetail";
+
+                            String path = absolutePath;
+                            File file = new File(path);
+
+                            if (!file.exists()) {
+                                boolean wasSuccessful = file.mkdirs();
+
+                                if (!wasSuccessful) {
+                                    log.warn("file : was not successful");
+                                }
+                            }
+                            while (true) {
+                                String originalFileExtension;
+                                String contentType = multipartFile.getContentType();
+
+                                if (ObjectUtils.isEmpty(contentType)) {
+                                    break;
+                                } else {
+                                    if (contentType.contains("image/jpeg")) {
+                                        originalFileExtension = ".jpg";
+                                    } else if (contentType.contains("images/png")) {
+                                        originalFileExtension = ".png";
+                                    } else {
+                                        break;
+                                    }
+                                }
+
+                                String new_file_name = String.valueOf(memberId);
+
+                                planDetail.setDetailImg(new_file_name + originalFileExtension);
+
+                                planDetailRepository.save(planDetail);
+
+                                file = new File(absolutePath + File.separator + new_file_name + originalFileExtension);
+                                multipartFile.transferTo(file);
+
+                                file.setWritable(true);
+                                file.setReadable(true);
+                                break;
+                            }
+                        }
+                    } // 이미지처리 끝
+
+                    PlanDetailDTO tempDTO = new PlanDetailDTO(planDetail);
+                    planDetailDTOList.add(tempDTO);
+
+                } // for문 끝
+
+                // responsedto에 담기
+                responsePlanDTO.setPlanDetailDTOList(planDetailDTOList);
+
+            } // detailList null 체크 끝
 
             // planmembers에 추가
             PlanMembers planMembers = new PlanMembers();
@@ -127,9 +216,6 @@ public class PlanService {
             planMembers.setMemberId(memberId);
             planMembers.setCheckReview(0);
             planMembersRepository.save(planMembers);
-
-            // 저장한 엔티티 DTO에 담아서 리턴
-            PlanDTO responsePlanDTO = new PlanDTO(plan);
 
             return responsePlanDTO;
 
