@@ -26,35 +26,35 @@ public class ReviewMemberService {
     private final MemberRepository memberRepository;
 
     // 평가 작성
-    public void addReview(int memberId, ReviewMemberDTO reviewMemberDTO) {
+    public void addReview(int memberId, List<ReviewMemberDTO> reviewMemberDTOList) {
 
         // 여행은 종료되었는데 check가 0이면 1로 변경
         planMembersRepository.updateCheck1(memberId);
 
-        int reviewed = memberRepository.findIdByNickname(reviewMemberDTO.getReviewedNickname());
-
-        if (1 != planMembersRepository.selectCheckByPlanIdAndMemberId(reviewMemberDTO.getPlanId(), memberId)) {
+        if (1 != planMembersRepository.selectCheckByPlanIdAndMemberId(reviewMemberDTOList.get(0).getPlanId(), memberId)) {
             log.warn("ReviewMemberService.addReview() : 해당 여행이 끝나지 않았거나 평가 작성을 완료했습니다.");
             throw new RuntimeException("ReviewMemberService.addReview() : 해당 여행이 끝나지 않았거나 평가 작성을 완료했습니다.");
-        } else if (0 < reviewMemberRepository.countByPlanIdAndReviewerAndReviewed(reviewMemberDTO.getPlanId(), memberId, reviewed)) {
-            log.warn("ReviewMemberService.addReview() : 해당 유저에 대한 평가를 이미 작성했습니다.");
-            throw new RuntimeException("ReviewMemberService.addReview() : 해당 유저에 대한 평가를 이미 작성했습니다.");
         }
 
         try {
 
-            ReviewMember reviewMember = new ReviewMember();
-            reviewMember.setReviewer(memberId);
-            reviewMember.setReviewed(reviewed);
-            reviewMember.setPlanId(reviewMemberDTO.getPlanId());
-            reviewMember.setRating(reviewMemberDTO.getRating());
-            reviewMember.setContent(reviewMemberDTO.getContent());
-            reviewMemberRepository.save(reviewMember);
+            for (ReviewMemberDTO reviewMemberDTO : reviewMemberDTOList) {
+
+                int reviewed = memberRepository.findIdByNickname(reviewMemberDTO.getReviewedNickname());
+                ReviewMember reviewMember = new ReviewMember();
+                reviewMember.setReviewer(memberId);
+                reviewMember.setReviewed(reviewed);
+                reviewMember.setPlanId(reviewMemberDTO.getPlanId());
+                reviewMember.setRating(reviewMemberDTO.getRating());
+                reviewMember.setContent(reviewMemberDTO.getContent());
+                reviewMemberRepository.save(reviewMember);
+
+            }
 
             // 해당 여행의 모든 구성원에 대한 평가를 완료했다면 이 유저의 planMembers.check를 2로 변경
-            int planMemberCount = planMembersRepository.countByPlanIdAndNotMemberId(reviewMemberDTO.getPlanId(), memberId);
-            int reviewerCount = reviewMemberRepository.countByPlanIdAndReviewer(reviewMemberDTO.getPlanId(), memberId);
-            if (planMemberCount == reviewerCount) planMembersRepository.updateCheck2(reviewMemberDTO.getPlanId(), memberId, 2);
+            int planMemberCount = planMembersRepository.countByPlanIdAndNotMemberId(reviewMemberDTOList.get(0).getPlanId(), memberId);
+            int reviewerCount = reviewMemberRepository.countByPlanIdAndReviewer(reviewMemberDTOList.get(0).getPlanId(), memberId);
+            if (planMemberCount == reviewerCount) planMembersRepository.updateCheck2(reviewMemberDTOList.get(0).getPlanId(), memberId, 2);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,9 +64,9 @@ public class ReviewMemberService {
     }
 
     // 평가 수정
-    public ReviewMemberDTO updateReview(int memberId, ReviewMemberDTO reviewMemberDTO) {
+    public List<ReviewMemberDTO> updateReview(int memberId, List<ReviewMemberDTO> reviewMemberDTOList) {
 
-        int reviewer = memberRepository.findIdByNickname(reviewMemberDTO.getReviewerNickname());
+        int reviewer = memberRepository.findIdByNickname(reviewMemberDTOList.get(0).getReviewerNickname());
         if (memberId != reviewer) {
             log.warn("ReviewMemberService.updateReview() : 평가를 수정할 권한이 없습니다.(MemberId 틀림)");
             throw new RuntimeException("ReviewMemberService.updateReview() : 평가를 수정할 권한이 없습니다.(MemberId 틀림)");
@@ -74,18 +74,25 @@ public class ReviewMemberService {
 
         try {
 
-            ReviewMember reviewMember = reviewMemberRepository.findByReviewMemberId(reviewMemberDTO.getReviewMemberId());
-            reviewMember.setRating(reviewMemberDTO.getRating());
-            reviewMember.setContent(reviewMemberDTO.getContent());
-            reviewMemberRepository.save(reviewMember);
+            List<ReviewMemberDTO> responseDTOList = new ArrayList<>();
+            for (ReviewMemberDTO reviewMemberDTO : reviewMemberDTOList) {
 
-            return ReviewMemberDTO.builder()
-                    .reviewerNickname(reviewMemberDTO.getReviewerNickname())
-                    .reviewedNickname(reviewMemberDTO.getReviewedNickname())
-                    .rating(reviewMember.getRating())
-                    .content(reviewMember.getContent())
-                    .planId(reviewMemberDTO.getPlanId())
-                    .build();
+                ReviewMember reviewMember = reviewMemberRepository.findByReviewMemberId(reviewMemberDTO.getReviewMemberId());
+                reviewMember.setRating(reviewMemberDTO.getRating());
+                reviewMember.setContent(reviewMemberDTO.getContent());
+                reviewMemberRepository.save(reviewMember);
+
+                ReviewMemberDTO responseDTO = ReviewMemberDTO.builder()
+                                .reviewerNickname(reviewMemberDTO.getReviewerNickname())
+                                .reviewedNickname(reviewMemberDTO.getReviewedNickname())
+                                .rating(reviewMember.getRating())
+                                .content(reviewMember.getContent())
+                                .planId(reviewMemberDTO.getPlanId())
+                                .build();
+                responseDTOList.add(responseDTO);
+            }
+
+            return responseDTOList;
 
         } catch (Exception e) {
             e.printStackTrace();

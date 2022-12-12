@@ -23,10 +23,10 @@ public class ReviewMemberController {
 
     // 평가 작성
     @PostMapping("/add")
-    public ResponseEntity<?> addReview(@AuthenticationPrincipal String memberId, @RequestBody ReviewMemberDTO reviewMemberDTO) {
+    public ResponseEntity<?> addReview(@AuthenticationPrincipal String memberId, @RequestBody List<ReviewMemberDTO> reviewMemberDTOList) {
 
         try {
-            reviewMemberService.addReview(Integer.parseInt(memberId), reviewMemberDTO);
+            reviewMemberService.addReview(Integer.parseInt(memberId), reviewMemberDTOList);
             ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
@@ -38,11 +38,11 @@ public class ReviewMemberController {
 
     // 평가 수정
     @PostMapping("/update")
-    public ResponseEntity<?> updateReview(@AuthenticationPrincipal String memberId, @RequestBody ReviewMemberDTO reviewMemberDTO) {
+    public ResponseEntity<?> updateReview(@AuthenticationPrincipal String memberId, @RequestBody List<ReviewMemberDTO> reviewMemberDTOList) {
 
         try {
-            ReviewMemberDTO responseDTO = reviewMemberService.updateReview(Integer.parseInt(memberId), reviewMemberDTO);
-            return ResponseEntity.ok().body(responseDTO);
+            List<ReviewMemberDTO> responseDTOList = reviewMemberService.updateReview(Integer.parseInt(memberId), reviewMemberDTOList);
+            return ResponseEntity.ok().body(responseDTOList);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
