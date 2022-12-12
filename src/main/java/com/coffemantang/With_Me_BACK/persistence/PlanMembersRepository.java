@@ -40,7 +40,7 @@ public interface PlanMembersRepository extends JpaRepository<PlanMembers, Intege
     PlanMembers findByPlanIdAndMemberId(int planId, int memberId);
 
     // p.state가 3, pm.check가 0이고 pm.memberId에 맞는 로우의 check를 1로 수정
-    @Query(value = "UPDATE plan p INNER JOIN plan_members pm ON p.plan_id = pm.plan_id SET pm.check_review = 1 WHERE p.state = 3 AND pm.member_id = :memberId and pm.check_review = 0", nativeQuery = true)
+    @Query(value = "UPDATE plan p INNER JOIN plan_members AS pm ON p.plan_id = pm.plan_id SET pm.check_review = 1 WHERE p.state = 3 AND pm.member_id = :memberId and pm.check_review = 0", nativeQuery = true)
     void updateCheck1(@Param("memberId") int memberId);
 
     // planId, memberId에 맞는 로우의 check 수정
