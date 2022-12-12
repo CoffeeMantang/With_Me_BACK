@@ -41,8 +41,7 @@ public class ReviewMemberController {
     public ResponseEntity<?> updateReview(@AuthenticationPrincipal String memberId, @RequestBody ReviewMemberDTO reviewMemberDTO) {
 
         try {
-            reviewMemberService.updateReview(Integer.parseInt(memberId), reviewMemberDTO);
-            ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
+            ReviewMemberDTO responseDTO = reviewMemberService.updateReview(Integer.parseInt(memberId), reviewMemberDTO);
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
@@ -51,7 +50,7 @@ public class ReviewMemberController {
 
     }
 
-    // 평가 리스트
+    // 프로필 대상이 받은 평가 리스트
     @PostMapping("/list")
     public ResponseEntity<?> listReview(@RequestParam int targetMemberId, @PageableDefault(size = 10) Pageable pageable) {
 

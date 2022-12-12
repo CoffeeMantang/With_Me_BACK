@@ -4,10 +4,7 @@ import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.dto.PlanMembersDTO;
 import com.coffemantang.With_Me_BACK.model.ApplyPlan;
 import com.coffemantang.With_Me_BACK.model.PlanMembers;
-import com.coffemantang.With_Me_BACK.persistence.ApplyPlanRepository;
-import com.coffemantang.With_Me_BACK.persistence.MemberRepository;
-import com.coffemantang.With_Me_BACK.persistence.PlanMembersRepository;
-import com.coffemantang.With_Me_BACK.persistence.PlanRepository;
+import com.coffemantang.With_Me_BACK.persistence.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,8 +25,10 @@ public class PlanMembersService {
 
     private final MemberRepository memberRepository;
 
-    // 여행 구성원 보기
-    public List<PlanMembersDTO> viewPlanMembers(int memberId, PlanDTO planDTO) {
+    private final ReviewMemberRepository reviewMemberRepository;
+
+    // 여행 구성원 리스트
+    public List<PlanMembersDTO> listPlanMembers(int memberId, PlanDTO planDTO) {
 
         long chk = planMembersRepository.countByPlanIdAndMemberId(planDTO.getPlanId(), memberId);
         if(chk == 0) {
@@ -42,8 +41,41 @@ public class PlanMembersService {
             List<PlanMembers> planMembersList = planMembersRepository.findByPlanId(planDTO.getPlanId());
             List<PlanMembersDTO> planMembersDTOList = new ArrayList<>();
             for (PlanMembers planMembers : planMembersList) {
-                PlanMembersDTO planMembersDTO = new PlanMembersDTO(planMembers);
+                PlanMembersDTO planMembersDTO = PlanMembersDTO.builder()
+                            .planId(planMembers.getPlanId()).build();
                 planMembersDTO.setNickname(memberRepository.findNicknameByMemberId(planMembers.getMemberId()));
+                planMembersDTOList.add(planMembersDTO);
+            }
+
+            return planMembersDTOList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("PlanMembersService.viewPlanMembers() : 에러 발생");
+        }
+
+    }
+
+    // 평가해야할 여행 구성원 리스트
+    public List<PlanMembersDTO> listReviewPlanMembers(int memberId, PlanDTO planDTO) {
+
+        long chk = planMembersRepository.countByPlanIdAndMemberId(planDTO.getPlanId(), memberId);
+        if(chk == 0) {
+            log.warn("PlanMembersService.viewPlanMembers() : 로그인된 유저는 구성원에 없습니다.");
+            throw new RuntimeException("PlanMembersService.viewPlanMembers() : 로그인된 유저는 구성원에 없습니다.");
+        }
+
+        try {
+
+            List<PlanMembers> planMembersList = planMembersRepository.findByPlanIdNotMemberId(planDTO.getPlanId(), memberId);
+            List<PlanMembersDTO> planMembersDTOList = new ArrayList<>();
+            for (PlanMembers planMembers : planMembersList) {
+                PlanMembersDTO planMembersDTO = PlanMembersDTO.builder()
+                            .planId(planMembers.getPlanId()).build();
+                planMembersDTO.setNickname(memberRepository.findNicknameByMemberId(planMembers.getMemberId()));
+                if (0 < reviewMemberRepository.countByPlanIdAndReviewerAndReviewed(planMembers.getPlanId(), memberId, planMembers.getMemberId()))
+                    planMembersDTO.setPossibleReviewMember(1); // 작성함
+                else planMembersDTO.setPossibleReviewMember(0); // 작성 안 함
                 planMembersDTOList.add(planMembersDTO);
             }
 

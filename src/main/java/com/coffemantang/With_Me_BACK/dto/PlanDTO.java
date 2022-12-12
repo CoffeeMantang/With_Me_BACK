@@ -57,6 +57,10 @@ public class PlanDTO {
 
     private long participant; // 참가한 사람 수
 
+    private int reviewPlanState; // 여행 리뷰 상태 0 : 불가능(여행 끝나지 않음), 1 : 가능(여행 끝남), 2 : 완료
+
+    private int reviewMemberState; // 구성원 평가 상태 0 : 불가능, 1: 가능, 2 : 완료
+
     public PlanDTO(final Plan plan) {
 
         this.planId = plan.getPlanId();

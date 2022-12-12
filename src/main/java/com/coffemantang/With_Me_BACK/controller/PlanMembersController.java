@@ -23,12 +23,26 @@ public class PlanMembersController {
 
     private final PlanMembersService planMembersService;
 
-    // 여행 구성원 보기
-    @PostMapping("/view")
-    public ResponseEntity<?> viewPlanMembers(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
+    // 여행 구성원 리스트
+    @PostMapping("/list")
+    public ResponseEntity<?> listPlanMembers(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
 
         try {
-            List<PlanMembersDTO> planMembersDTOList = planMembersService.viewPlanMembers(Integer.parseInt(memberId), planDTO);
+            List<PlanMembersDTO> planMembersDTOList = planMembersService.listPlanMembers(Integer.parseInt(memberId), planDTO);
+            return ResponseEntity.ok().body(planMembersDTOList);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 평가해야할 여행 구성원 리스트
+    @PostMapping("/list-review")
+    public ResponseEntity<?> listReviewPlanMembers(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
+
+        try {
+            List<PlanMembersDTO> planMembersDTOList = planMembersService.listReviewPlanMembers(Integer.parseInt(memberId), planDTO);
             return ResponseEntity.ok().body(planMembersDTOList);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();

@@ -339,7 +339,7 @@ public class ReviewPlanService {
 
     }
 
-    // 내가 쓴 여행 리뷰 리스트
+    // 프로필 대상이 쓴 여행 리뷰 리스트
     public List<ReviewPlanDTO> listReviewPlan(int targetMemberId, Pageable pageable) {
 
         try {

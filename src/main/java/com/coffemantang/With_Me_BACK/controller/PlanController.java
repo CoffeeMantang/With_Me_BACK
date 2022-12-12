@@ -80,18 +80,18 @@ public class PlanController {
 
 
 
-    // 여행 일정 리스트
-//    @PostMapping("/list")
-//    public ResponseEntity<?> listPlan(@PageableDefault(size = 10) Pageable pageable) {
-//
-//        try {
-//            List<PlanDTO> responsePlanDTOList = planService.listPlan(pageable);
-//            return ResponseEntity.ok().body(responsePlanDTOList);
-//        } catch (Exception e) {
-//            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
-//            return ResponseEntity.badRequest().body(responseDTO);
-//        }
-//
-//    }
+    // 나의 여행 일정 리스트
+    @PostMapping("/list")
+    public ResponseEntity<?> listPlan(@AuthenticationPrincipal String memberId, @PageableDefault(size = 10) Pageable pageable) {
+
+        try {
+            List<PlanDTO> responsePlanDTOList = planService.listPlan(Integer.parseInt(memberId), pageable);
+            return ResponseEntity.ok().body(responsePlanDTOList);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
 
 }

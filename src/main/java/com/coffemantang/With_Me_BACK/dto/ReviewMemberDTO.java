@@ -24,6 +24,10 @@ public class ReviewMemberDTO {
 
     private String content;
 
+    private String reviewerNickname;
+
+    private String reviewedNickname;
+
     public ReviewMemberDTO(final ReviewMember reviewMember) {
 
         this.reviewMemberId = reviewMember.getReviewMemberId();

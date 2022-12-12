@@ -21,6 +21,10 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
     @Query(value = "SELECT nickname FROM member WHERE member_id = :memberId", nativeQuery = true)
     String findNicknameByMemberId(@Param("memberId") int memberId);
 
+    // memberId로 nickname 가져오기
+    @Query(value = "SELECT member_id FROM member WHERE nickname = :nickname", nativeQuery = true)
+    int findIdByNickname(@Param("nickname") String nickname);
+
     // memberId로 엔티티 가져오기
     Member findByMemberId(int memberId);
 }

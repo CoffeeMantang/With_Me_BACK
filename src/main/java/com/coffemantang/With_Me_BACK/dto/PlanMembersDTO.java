@@ -22,6 +22,8 @@ public class PlanMembersDTO {
 
     private String nickname;
 
+    private int possibleReviewMember; // 0 : 작성 안 함 1 : 작성함
+
     public PlanMembersDTO(final PlanMembers planMembers) {
 
 //        this.planMembersId = planMembers.getPlanMembersId();
