@@ -401,10 +401,13 @@ public class PlanService {
                 PlanDetailDTO planDetailDTO = new PlanDetailDTO(planDetail);
                 planDetailDTOList.add(planDetailDTO);
             }
-
             // planDTO 생성 후 할당
             PlanDTO responsePlanDTO = new PlanDTO(plan);
             responsePlanDTO.setPlanDetailDTOList(planDetailDTOList);
+
+            // 총 참가 회원 수 가져오기
+            long cnt = planMembersRepository.countByPlanId(planDTO.getPlanId());
+            responsePlanDTO.setParticipant(cnt);
 
             return responsePlanDTO;
 
