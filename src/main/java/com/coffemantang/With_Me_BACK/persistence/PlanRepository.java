@@ -49,7 +49,7 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     int countByPlanIdAndState(int planId, int state);
 
     // 지역으로 검색하기(최신순)
-    Page<Plan> findAllPlaceLikeOrderByPostDateDesc(String place, Pageable pageable);
+    Page<Plan> findAllByPlaceLikeOrderByPostDateDesc(String place, Pageable pageable);
 
 //    Page<Plan> findAllOrderByPlanIdDESC(Pageable pageable);
 

@@ -46,4 +46,6 @@ public interface PlanMembersRepository extends JpaRepository<PlanMembers, Intege
     // planId, memberId에 맞는 로우의 check 수정
     @Query(value = "UPDATE plan_members SET check_review = :checkReview WHERE plan_id = :planId AND member_id = :memberId", nativeQuery = true)
     void updateCheck2(@Param("planId") int planId, @Param("memberId") int memberId, @Param("checkReview") int checkReview);
+
+    long countByPlanId(int planId);
 }
