@@ -52,17 +52,5 @@ public class PlanCommentController {
 
     }
 
-    // 대댓글 리스트
-    @PostMapping("/list-recomment")
-    public ResponseEntity<?> listRecomment(@RequestBody PlanCommentDTO planCommentDTO, @PageableDefault(size = 10) Pageable pageable) {
 
-        try {
-            List<PlanCommentDTO> planCommentDTOList = planCommentService.listRecomment(planCommentDTO, pageable);
-            return ResponseEntity.ok().body(planCommentDTOList);
-        } catch (Exception e) {
-            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
-
-    }
 }
