@@ -125,6 +125,7 @@ public class PlanService {
             plan.setStartDate(planDTO.getStartDate());
             plan.setEndDate(planDTO.getEndDate());
             plan.setNotice(planDTO.getNotice());
+            plan.setPlace((planDTO.getPlace()));
             plan.setTheme(planDTO.getTheme());
             plan.setHit(0);
             plan.setPlace(planDTO.getPlace());
