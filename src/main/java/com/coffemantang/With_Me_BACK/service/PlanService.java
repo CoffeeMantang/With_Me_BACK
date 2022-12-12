@@ -3,9 +3,11 @@ package com.coffemantang.With_Me_BACK.service;
 import com.coffemantang.With_Me_BACK.dto.CheckDTO;
 import com.coffemantang.With_Me_BACK.dto.PlanDTO;
 import com.coffemantang.With_Me_BACK.dto.PlanDetailDTO;
+import com.coffemantang.With_Me_BACK.model.Member;
 import com.coffemantang.With_Me_BACK.model.Plan;
 import com.coffemantang.With_Me_BACK.model.PlanDetail;
 import com.coffemantang.With_Me_BACK.model.PlanMembers;
+import com.coffemantang.With_Me_BACK.persistence.MemberRepository;
 import com.coffemantang.With_Me_BACK.persistence.PlanDetailRepository;
 import com.coffemantang.With_Me_BACK.persistence.PlanMembersRepository;
 import com.coffemantang.With_Me_BACK.persistence.PlanRepository;
@@ -36,6 +38,7 @@ public class PlanService {
     private final PlanMembersRepository planMembersRepository;
 
     private final PlanDetailService planDetailService;
+    private final MemberRepository memberRepository;
 
     // 조건 체크
     public void checkCondition(int memberId, LocalDateTime startDate, LocalDateTime endDate) {
@@ -321,14 +324,16 @@ public class PlanService {
     // Plan 지역으로 검색하기
     public List<PlanDTO> planSearch(final String keyword, final Pageable pageable) throws Exception{
         try{
-            Page<Plan> pPlan = planRepository.findAllPlaceLikeOrderByPostDateDesc(keyword, pageable);
+            Page<Plan> pPlan = planRepository.findAllByPlaceLikeOrderByPostDateDesc(keyword, pageable);
             List<Plan> lPlan = pPlan.getContent();
             List<PlanDTO> resultList = new ArrayList<>();
             for(Plan plan : lPlan){
+                Member member = memberRepository.findByMemberId(plan.getMemberId());
+                long cnt = planMembersRepository.countByPlanId(plan.getPlanId());
                 PlanDTO planDTO = PlanDTO.builder().deadline(plan.getDeadline()).planId(plan.getPlanId())
-                        .startDate(plan.getStartDate()).endDate(plan.getEndDate())
+                        .startDate(plan.getStartDate()).endDate(plan.getEndDate()).participant(cnt)
                         .personnel(plan.getPersonnel()).state(plan.getState()).postDate(plan.getPostDate())
-                        .hit(plan.getHit()).title(plan.getTitle()).build();
+                        .hit(plan.getHit()).title(plan.getTitle()).nickname(member.getNickname()).build();
                 resultList.add(planDTO);
             }
             return resultList;

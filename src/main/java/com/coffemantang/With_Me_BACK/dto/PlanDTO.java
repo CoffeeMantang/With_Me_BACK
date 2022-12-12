@@ -52,6 +52,10 @@ public class PlanDTO {
     private List<PlanDetailDTO> planDetailDTOList;
 
     private String place;
+    
+    private String nickname; // 작성자 닉네임
+
+    private long participant; // 참가한 사람 수
 
     public PlanDTO(final Plan plan) {
 
