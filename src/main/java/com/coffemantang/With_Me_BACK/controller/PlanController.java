@@ -25,8 +25,8 @@ public class PlanController {
     private final PlanService planService;
 
     // 여행 일정 추가
-    @PostMapping("/add")
-    public ResponseEntity<?> addPlan(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
+    @PostMapping(value="/add")
+    public ResponseEntity<?> addPlan(@AuthenticationPrincipal String memberId, PlanDTO planDTO) {
 
         try {
             PlanDTO responsePlanDTO = planService.addPlan(Integer.parseInt(memberId), planDTO);

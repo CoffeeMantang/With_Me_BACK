@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -96,27 +97,22 @@ public class PlanService {
     }
 
     // 여행 일정 추가
+    @Transactional
     public PlanDTO addPlan(int memberId, PlanDTO planDTO) {
-
-        // 여행은 종료되었는데 check가 0이면 1로 변경
-        planMembersRepository.updateCheck1(memberId);
-
-        if(memberId != planDTO.getMemberId()) {
-            log.warn("PlanService.addPlan() : 로그인된 유저와 작성자가 다릅니다.");
-            throw new RuntimeException("PlanService.addPlan() : 로그인된 유저와 작성자가 다릅니다.");
-        }
-        // 조건 체크
-        checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
-
         try {
+            // 여행은 종료되었는데 check가 0이면 1로 변경
+            planMembersRepository.updateCheck1(memberId);
+
+            // 조건 체크
+            checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
 
             // 엔티티에 저장
             Plan plan = new Plan();
-            plan.setMemberId(planDTO.getMemberId());
+            plan.setMemberId(memberId);
             plan.setTitle(planDTO.getTitle());
             plan.setState(0);
             plan.setPersonnel(planDTO.getPersonnel());
-            plan.setPostDate(planDTO.getPostDate());
+            plan.setPostDate(LocalDateTime.now());
             plan.setDeadline(planDTO.getDeadline());
             plan.setStartDate(planDTO.getStartDate());
             plan.setEndDate(planDTO.getEndDate());
@@ -128,7 +124,7 @@ public class PlanService {
             // planmembers에 추가
             PlanMembers planMembers = new PlanMembers();
             planMembers.setPlanId(planId);
-            planMembers.setMemberId(planDTO.getMemberId());
+            planMembers.setMemberId(memberId);
             planMembers.setCheckReview(0);
             planMembersRepository.save(planMembers);
 
