@@ -27,6 +27,8 @@ public class PlanDTO {
 
     private int personnel;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime postDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -49,6 +51,8 @@ public class PlanDTO {
 
     private List<PlanDetailDTO> planDetailDTOList;
 
+    private String place;
+
     public PlanDTO(final Plan plan) {
 
         this.planId = plan.getPlanId();
@@ -63,6 +67,7 @@ public class PlanDTO {
         this.notice = plan.getNotice();
         this.theme = plan.getTheme();
         this.hit = plan.getHit();
+        this.place = plan.getPlace();
 
     }
 }
