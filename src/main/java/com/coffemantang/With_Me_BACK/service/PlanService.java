@@ -132,7 +132,18 @@ public class PlanService {
             int planId = planRepository.save(plan).getPlanId();
 
             // 저장한 엔티티 DTO에 담아서 리턴
-            PlanDTO responsePlanDTO = new PlanDTO(plan);
+            PlanDTO responsePlanDTO = PlanDTO.builder()
+                    .planId(planId)
+                    .title(plan.getTitle())
+                    .personnel(plan.getPersonnel())
+                    .postDate(plan.getPostDate())
+                    .deadline(plan.getDeadline())
+                    .startDate(plan.getStartDate())
+                    .endDate(plan.getEndDate())
+                    .notice(plan.getNotice())
+                    .theme(plan.getTheme())
+                    .place(plan.getPlace())
+                    .build();
             // PlanDetail 추가
             if (planDTO.getPlanDetailDTOList() != null) {
 
@@ -232,22 +243,18 @@ public class PlanService {
     // 여행 일정 수정
     public PlanDTO updatePlan(int memberId, PlanDTO planDTO) {
 
-        if(memberId != planDTO.getMemberId()) {
-            log.warn("PlanService.updatePlan() : 로그인된 유저와 작성자가 다릅니다.");
-            throw new RuntimeException("PlanService.updatePlan() : 로그인된 유저와 작성자가 다릅니다.");
-        }
         // 조건 체크
         if(planDTO.getState() > 1) {
             log.warn("PlanService.updatePlan() : 여행이 시작된 후엔 수정할 수 없습니다.");
             throw new RuntimeException("PlanService.updatePlan() : 여행이 시작된 후엔 수정할 수 없습니다.");
         }
-        checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
+//        checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
 
         try {
             System.out.println(planDTO);
             // 엔티티에 저장
             Plan plan = planRepository.findById(planDTO.getPlanId());
-            plan.setMemberId(planDTO.getMemberId());
+            plan.setMemberId(memberId);
             plan.setTitle(planDTO.getTitle());
             plan.setPersonnel(planDTO.getPersonnel());
             plan.setPostDate(planDTO.getPostDate());
@@ -256,10 +263,97 @@ public class PlanService {
             plan.setEndDate(planDTO.getEndDate());
             plan.setNotice(planDTO.getNotice());
             plan.setTheme(planDTO.getTheme());
+            plan.setPlace(planDTO.getPlace());
             planRepository.save(plan);
 
             // 저장한 엔티티 DTO에 담아서 리턴
-            PlanDTO responsePlanDTO = new PlanDTO(plan);
+            PlanDTO responsePlanDTO = PlanDTO.builder()
+                    .planId(planDTO.getPlanId())
+                    .title(plan.getTitle())
+                    .personnel(plan.getPersonnel())
+                    .postDate(plan.getPostDate())
+                    .deadline(plan.getDeadline())
+                    .startDate(plan.getStartDate())
+                    .endDate(plan.getEndDate())
+                    .notice(plan.getNotice())
+                    .theme(plan.getTheme())
+                    .place(plan.getPlace())
+                    .build();
+            // 기존 디테일 삭제
+            planDetailService.deleteDetail(planDTO.getPlanDetailDTOList().get(0).getPlanId());
+
+            // 새로 추가
+            List<PlanDetailDTO> planDetailDTOList = new ArrayList<>();
+            for (PlanDetailDTO planDetailDTO : planDTO.getPlanDetailDTOList()) {
+
+                PlanDetail planDetail = new PlanDetail();
+                planDetail.setPlanId(planDetailDTO.getPlanId());
+                planDetail.setDetailDate(planDetailDTO.getDetailDate());
+                planDetail.setContent(planDetailDTO.getContent());
+
+                planDetailRepository.save(planDetail);
+
+                // 이미지가 있는 경우
+                if (planDetailDTO.checkFileNull()) {
+
+                    MultipartFile multipartFile = planDetailDTO.getFile().get(0);
+                    String current_date = null;
+
+                    if (!multipartFile.isEmpty()) {
+                        LocalDateTime now = LocalDateTime.now();
+                        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                        current_date = now.format(dateTimeFormatter);
+
+                        String absolutePath = "C:" + File.separator + "withMeImgs" + File.separator + "planDetail";
+
+                        String path = absolutePath;
+                        File file = new File(path);
+
+                        if (!file.exists()) {
+                            boolean wasSuccessful = file.mkdirs();
+
+                            if (!wasSuccessful) {
+                                log.warn("file : was not successful");
+                            }
+                        }
+                        while (true) {
+                            String originalFileExtension;
+                            String contentType = multipartFile.getContentType();
+
+                            if (ObjectUtils.isEmpty(contentType)) {
+                                break;
+                            } else {
+                                if (contentType.contains("image/jpeg")) {
+                                    originalFileExtension = ".jpg";
+                                } else if (contentType.contains("images/png")) {
+                                    originalFileExtension = ".png";
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            String new_file_name = String.valueOf(memberId);
+
+                            planDetail.setDetailImg(new_file_name + originalFileExtension);
+
+                            planDetailRepository.save(planDetail);
+
+                            file = new File(absolutePath + File.separator + new_file_name + originalFileExtension);
+                            multipartFile.transferTo(file);
+
+                            file.setWritable(true);
+                            file.setReadable(true);
+                            break;
+                        }
+                    }
+                } // 이미지처리 끝
+
+                PlanDetailDTO tempDTO = new PlanDetailDTO(planDetail);
+                planDetailDTOList.add(tempDTO);
+            } // for문 끝
+
+            // plandto에 담아서 보내기
+            responsePlanDTO.setPlanDetailDTOList(planDetailDTOList);
 
             return responsePlanDTO;
 
