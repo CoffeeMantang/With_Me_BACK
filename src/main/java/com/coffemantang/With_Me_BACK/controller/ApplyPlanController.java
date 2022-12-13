@@ -45,6 +45,7 @@ public class ApplyPlanController {
             ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
+            e.printStackTrace();
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
@@ -60,6 +61,7 @@ public class ApplyPlanController {
             ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
+            e.printStackTrace();
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }

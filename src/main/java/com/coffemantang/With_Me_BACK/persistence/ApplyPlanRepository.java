@@ -11,7 +11,8 @@ public interface ApplyPlanRepository extends JpaRepository<ApplyPlan, Integer> {
 
     ApplyPlan findByApplyPlanId(int applyPlanId);
 
-    long countByPlanIdAndMemberIdAndState(int planId, int memberId, int state);
+
+    Long countByPlanIdAndMemberIdAndState(int planId, int memberId, int state);
 
     ApplyPlan findByMemberIdAndPlanIdAndState(int memberId, int planId, int state);
 

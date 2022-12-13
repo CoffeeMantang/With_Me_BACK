@@ -13,7 +13,7 @@ public interface ReviewMemberRepository extends JpaRepository<ReviewMember, Inte
 
     // reviewed 아이디로 평점 평균 가져오기
     @Query(value = "SELECT AVG(rating) FROM review_member WHERE reviewed = :reviewed", nativeQuery = true)
-    double selectAVGRatingByReviewed(int reviewed);
+    Double selectAVGRatingByReviewed(int reviewed);
 
     // 페이징
     Page<ReviewMember> findByReviewed(int memberId, Pageable pageable);

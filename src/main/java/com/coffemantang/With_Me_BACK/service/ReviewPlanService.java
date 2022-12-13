@@ -338,11 +338,11 @@ public class ReviewPlanService {
     }
 
     // 프로필 대상이 쓴 여행 리뷰 리스트
-    public List<ReviewPlanDTO> listReviewPlan(String targetNickname, Pageable pageable) {
+    public List<ReviewPlanDTO> listReviewPlan(int memberId, Pageable pageable) {
 
         try {
 
-            Page<ReviewPlan> reviewPlanPage = reviewPlanRepository.findByReviewer(memberRepository.findIdByNickname(targetNickname), pageable);
+            Page<ReviewPlan> reviewPlanPage = reviewPlanRepository.findByReviewer(memberId, pageable);
             List<ReviewPlan> reviewPlanList = reviewPlanPage.getContent();
             List<ReviewPlanDTO> reviewPlanDTOList = new ArrayList<>();
 

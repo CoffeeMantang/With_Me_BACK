@@ -61,4 +61,7 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
 
     // 나의 여행 리스트 가져오기 (최신순)
     Page<Plan> findByMemberIdOrderByPostDateDesc(int memberId, Pageable pageable);
+
+    // 카테고리와 키워드로 검색하기
+    Page<Plan> findAllByPlaceLikeAndThemeLikeOrderByPostDateDesc(String place, String theme, Pageable pageable);
 }

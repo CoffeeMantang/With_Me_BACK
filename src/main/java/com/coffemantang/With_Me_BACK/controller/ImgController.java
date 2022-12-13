@@ -42,4 +42,23 @@ public class ImgController {
             throw new Exception();
         }
     }
+
+    //detail 이미지 url
+    @GetMapping(value = "/member/{fileOriginName}")
+    public ResponseEntity<Resource> getMemberImg(@PathVariable("fileOriginName") String fileName) throws Exception{
+        try{
+            String path = "C:\\withMeImgs\\member\\"; // 실제 이미지가 있는 위치
+            FileSystemResource resource = new FileSystemResource(path+fileName);
+            if(!resource.exists()){
+                throw new Exception();
+            }
+            HttpHeaders header = new HttpHeaders();
+            Path filePath = null;
+            filePath = Paths.get(path+fileName);
+            header.add("Content-Type", Files.probeContentType(filePath)); // filePath의 마임타입 체크해서 header에 추가
+            return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+        }catch(Exception e){
+            throw new Exception();
+        }
+    }
 }

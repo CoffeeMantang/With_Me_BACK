@@ -14,4 +14,5 @@ public interface ReviewPlanRepository extends JpaRepository<ReviewPlan, Integer>
 
     // id로 엔티티 가져오기
     ReviewPlan findByReviewPlanId(int reviewPlanId);
+
 }
