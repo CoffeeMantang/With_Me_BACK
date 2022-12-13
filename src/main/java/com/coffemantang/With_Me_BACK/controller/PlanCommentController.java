@@ -30,6 +30,7 @@ public class PlanCommentController {
             ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
+            e.printStackTrace();
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
@@ -38,10 +39,11 @@ public class PlanCommentController {
 
     // 대댓글 입력
     @PostMapping("/add-recomment")
-    public ResponseEntity<?> addRecomment(@AuthenticationPrincipal String memberId, @RequestBody PlanCommentDTO planCommentDTO, @RequestParam String content) {
+    public ResponseEntity<?> addRecomment(@AuthenticationPrincipal String memberId, @RequestBody PlanCommentDTO planCommentDTO ) {
 //    public ResponseEntity<?> addRecomment(@AuthenticationPrincipal String memberId, @RequestBody PlanCommentDTO planCommentDTO) {
 
         try {
+            String content = planCommentDTO.getContent();
             planCommentService.addRecomment(Integer.parseInt(memberId), planCommentDTO, content);
             ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
             return ResponseEntity.ok().body(responseDTO);

@@ -11,6 +11,8 @@ public interface ApplyPlanRepository extends JpaRepository<ApplyPlan, Integer> {
 
     ApplyPlan findByApplyPlanId(int applyPlanId);
 
+    long countByPlanIdAndMemberIdAndState(int planId, int memberId, int state);
+
     ApplyPlan findByMemberIdAndPlanIdAndState(int memberId, int planId, int state);
 
     // 해당 memberId가 받은 신청 리스트(id최신순)

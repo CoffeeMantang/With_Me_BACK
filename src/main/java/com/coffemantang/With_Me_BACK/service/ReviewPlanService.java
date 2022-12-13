@@ -55,7 +55,7 @@ public class ReviewPlanService {
 
             // 엔티티 생성
             ReviewPlan reviewPlan = new ReviewPlan();
-            reviewPlan.setReviewer(memberRepository.findIdByNickname(reviewPlanDTO.getReviewerNickname()));
+            reviewPlan.setReviewer(memberId);
             reviewPlan.setPlanId(reviewPlanDTO.getPlanId());
             reviewPlan.setRating(reviewPlanDTO.getRating());
             reviewPlan.setContent(reviewPlanDTO.getContent());

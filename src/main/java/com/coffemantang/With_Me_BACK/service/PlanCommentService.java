@@ -26,11 +26,6 @@ public class PlanCommentService {
     // 댓글 작성
     public void addComment(int memberId, PlanCommentDTO planCommentDTO, int planId) {
 
-        if(memberId != memberRepository.findIdByNickname(planCommentDTO.getNickname())) {
-            log.warn("PlanCommentService.addComment() : 로그인된 유저와 댓글 작성자가 다릅니다.");
-            throw new RuntimeException("PlanCommentService.addComment() : 로그인된 유저와 댓글 작성자가 다릅니다.");
-        }
-
         try {
 
             PlanComment planComment = new PlanComment();
@@ -53,8 +48,16 @@ public class PlanCommentService {
     public void addRecomment(int memberId, PlanCommentDTO planCommentDTO, String content) {
 
         try {
+            // 대댓글 갯수 가져오기
+            long count = planCommentRepository.countByGroupNum(planCommentDTO.getGroupNum());
+            Integer maxTurn = 0;
+            if(count == 0){
+                maxTurn = 0;
+            }else{
+                maxTurn = planCommentRepository.selectMaxTurnByPlanIdAndGroupNum(planCommentDTO.getPlanId(), planCommentDTO.getGroupNum());
+            }
 
-            int maxTurn = planCommentRepository.selectMaxTurnByPlanIdAndGroupNum(planCommentDTO.getPlanId(), planCommentDTO.getGroupNum());
+
 
             PlanComment planComment = new PlanComment();
             planComment.setMemberId(memberId);
@@ -91,6 +94,7 @@ public class PlanCommentService {
                             .groupNum(planComment.getGroupNum())
                             .commentDate(planComment.getCommentDate())
                             .nickname(memberRepository.findNicknameByMemberId(planComment.getMemberId()))
+                        .planCommentId(planComment.getPlanCommentId())
                             .build();
                 planCommentDTOList.add(newPlanCommentDto);
             }

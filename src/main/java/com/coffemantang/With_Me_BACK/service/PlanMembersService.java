@@ -68,11 +68,12 @@ public class PlanMembersService {
         }
 
         try {
-
-            List<PlanMembers> planMembersList = planMembersRepository.findByPlanIdNotMemberId(planDTO.getPlanId(), memberId);
+            log.warn("현재 멤버 아아디: " + memberId);
+            List<PlanMembers> planMembersList = planMembersRepository.findByPlanIdAndMemberIdNot(planDTO.getPlanId(), memberId);
             List<PlanMembersDTO> planMembersDTOList = new ArrayList<>();
             for (PlanMembers planMembers : planMembersList) {
                 PlanMembersDTO planMembersDTO = PlanMembersDTO.builder()
+                        .memberId(planMembers.getMemberId())
                             .planId(planMembers.getPlanId()).build();
                 planMembersDTO.setNickname(memberRepository.findNicknameByMemberId(planMembers.getMemberId()));
                 if (0 < reviewMemberRepository.countByPlanIdAndReviewerAndReviewed(planMembers.getPlanId(), memberId, planMembers.getMemberId()))
