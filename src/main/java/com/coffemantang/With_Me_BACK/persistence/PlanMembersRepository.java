@@ -50,6 +50,5 @@ public interface PlanMembersRepository extends JpaRepository<PlanMembers, Intege
     long countByPlanId(int planId);
 
     // 나를 제외한 구성원 리스트
-    @Query(value = "SELECT * FROM plan_members WHERE plan_id = :planId AND not member_id = :memberId", nativeQuery = true)
-    List<PlanMembers> findByPlanIdNotMemberId(@Param("planId") int planId, @Param("memberId") int memberId);
+    List<PlanMembers> findByPlanIdAndMemberIdNot(int planId, int memberId);
 }

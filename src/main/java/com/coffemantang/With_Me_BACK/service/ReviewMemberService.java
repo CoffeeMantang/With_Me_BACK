@@ -40,7 +40,8 @@ public class ReviewMemberService {
 
             for (ReviewMemberDTO reviewMemberDTO : reviewMemberDTOList) {
 
-                int reviewed = memberRepository.findIdByNickname(reviewMemberDTO.getReviewedNickname());
+                int reviewed = reviewMemberDTO.getReviewed();
+                log.warn("reviewed: " + reviewed);
                 ReviewMember reviewMember = new ReviewMember();
                 reviewMember.setReviewer(memberId);
                 reviewMember.setReviewed(reviewed);

@@ -34,16 +34,17 @@ public class ApplyPlanService {
     public void applyPlan(int memberId, ApplyPlanDTO applyPlanDTO) {
 
         try {
-
-            // 아이디 검사
-            if(memberId != memberRepository.findIdByNickname(applyPlanDTO.getNickname())) {
-                log.warn("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
-                throw new RuntimeException("ApplyPlanService.applyPlan() : 로그인된 유저와 신청자가 다릅니다.");
-            }
-
+            log.warn("들어온 planId는 " + applyPlanDTO.getPlanId());
+            log.warn("들어온 memberId는 " + memberId);
             // 신청 중복 검사
-            long chk = planMembersRepository.countByPlanIdAndMemberId(memberId, memberRepository.findIdByNickname(applyPlanDTO.getNickname()));
+            long chk = planMembersRepository.countByPlanIdAndMemberId(applyPlanDTO.getPlanId(), memberId);
+            long chk2 = applyPlanRepository.countByPlanIdAndMemberIdAndState(applyPlanDTO.getPlanId(), memberId, 0);
+            log.warn("검사결과: " + chk);
             if (chk > 0) {
+                log.warn("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
+                throw new RuntimeException("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
+            }
+            if (chk2 > 0) {
                 log.warn("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
                 throw new RuntimeException("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
             }

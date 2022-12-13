@@ -198,7 +198,7 @@ public class PlanService {
                                     }
                                 }
 
-                                String new_file_name = String.valueOf(memberId);
+                                String new_file_name = String.valueOf(planDetailId);
 
                                 planDetail.setDetailImg(new_file_name + originalFileExtension);
 
@@ -460,6 +460,7 @@ public class PlanService {
             List<PlanDTO> planDTOList = new ArrayList<>();
 
             for (Plan plan : planList) {
+                Member member = memberRepository.findByMemberId(plan.getMemberId());
                 PlanDTO planDTO = PlanDTO.builder()
                         .planId(plan.getPlanId())
                         .title(plan.getTitle())
@@ -468,6 +469,8 @@ public class PlanService {
                         .startDate(plan.getStartDate())
                         .endDate(plan.getEndDate())
                         .state(plan.getState())
+                        .nickname(member.getNickname())
+                        .personnel(plan.getPersonnel())
                         .build();
                 // 구성원 평가 작성 상태
                 planDTO.setReviewMemberState(planMembersRepository.selectCheckByPlanIdAndMemberId(plan.getPlanId(), memberId));
