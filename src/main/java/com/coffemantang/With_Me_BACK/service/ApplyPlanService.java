@@ -38,13 +38,13 @@ public class ApplyPlanService {
             log.warn("들어온 memberId는 " + memberId);
             // 신청 중복 검사
             long chk = planMembersRepository.countByPlanIdAndMemberId(applyPlanDTO.getPlanId(), memberId);
-            long chk2 = applyPlanRepository.countByPlanIdAndMemberIdAndState(applyPlanDTO.getPlanId(), memberId, 0);
+            Long chk2 = applyPlanRepository.countByPlanIdAndMemberIdAndState(applyPlanDTO.getPlanId(), memberId, 0);
             log.warn("검사결과: " + chk);
             if (chk > 0) {
                 log.warn("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
                 throw new RuntimeException("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
             }
-            if (chk2 > 0) {
+            if (chk2 > 0 || chk2 == null) {
                 log.warn("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
                 throw new RuntimeException("ApplyPlanService.applyPlan() : 이미 신청한 여행 일정입니다.");
             }
@@ -104,14 +104,9 @@ public class ApplyPlanService {
     // 신청 취소
     public void cancelApply(int memberId, ApplyPlanDTO applyPlanDTO) {
 
-        if(memberId != memberRepository.findIdByNickname(applyPlanDTO.getNickname())) {
-            log.warn("ApplyPlanService.cancelApply() : 로그인된 유저와 신청자가 다릅니다.");
-            throw new RuntimeException("ApplyPlanService.cancelApply() : 로그인된 유저와 신청자가 다릅니다.");
-        }
-
         try {
 
-            ApplyPlan applyPlan = applyPlanRepository.findByApplyPlanId(applyPlanDTO.getApplyPlanId());
+            ApplyPlan applyPlan = applyPlanRepository.findByMemberIdAndPlanIdAndState(memberId, applyPlanDTO.getPlanId(), 0);
             applyPlan.setState(3);
             applyPlanRepository.save(applyPlan);
 

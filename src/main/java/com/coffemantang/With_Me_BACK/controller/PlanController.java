@@ -40,8 +40,8 @@ public class PlanController {
     public ResponseEntity<?> updatePlan(@AuthenticationPrincipal String memberId, @RequestBody PlanDTO planDTO) {
 
         try {
-            PlanDTO responsePlanDTO = planService.updatePlan(Integer.parseInt(memberId), planDTO);
-            return ResponseEntity.ok().body(responsePlanDTO);
+            planService.updatePlan2(Integer.parseInt(memberId), planDTO);
+            return ResponseEntity.ok().body("ok");
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
@@ -76,6 +76,19 @@ public class PlanController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
 
+    }
+
+    // 내가 쓴 글인지 확인
+    @GetMapping("/isMyPlan")
+    public ResponseEntity<?> isMyPlan(@AuthenticationPrincipal String memberId, @RequestParam int planId) throws Exception{
+        try{
+            long cnt = planService.isMyPlan(Integer.parseInt(memberId), planId);
+            return ResponseEntity.ok().body(cnt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
     }
 
 }

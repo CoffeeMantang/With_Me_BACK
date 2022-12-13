@@ -103,17 +103,18 @@ public class ReviewMemberService {
     }
 
     // 프로필 대상이 받은 리뷰 리스트
-    public List<ReviewMemberDTO> listReview(String targetNickname, Pageable pageable) {
+    public List<ReviewMemberDTO> listReview(int memberId, Pageable pageable) {
 
         try {
 
-            Page<ReviewMember> reviewMemberPage = reviewMemberRepository.findByReviewed(memberRepository.findIdByNickname(targetNickname), pageable);
+            Page<ReviewMember> reviewMemberPage = reviewMemberRepository.findByReviewed(memberId, pageable);
             List<ReviewMember> reviewMemberList =reviewMemberPage.getContent();
             List<ReviewMemberDTO> reviewMemberDTOList =new ArrayList<>();
             for (ReviewMember reviewMember : reviewMemberList) {
                 ReviewMemberDTO reviewMemberDTO = ReviewMemberDTO.builder()
                                 .rating(reviewMember.getRating())
                                 .content(reviewMember.getContent())
+                        .reviewer(reviewMember.getReviewer())
                                 .build();
                 reviewMemberDTOList.add(reviewMemberDTO);
             }

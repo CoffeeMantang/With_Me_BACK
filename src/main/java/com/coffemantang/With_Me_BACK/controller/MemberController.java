@@ -42,6 +42,21 @@ public class MemberController {
 
     }
 
+    // 내정보
+    @GetMapping("/myInfo")
+    public ResponseEntity<?> myInfo(@AuthenticationPrincipal String memberId) {
+
+        try {
+            MemberDTO temp = MemberDTO.builder().memberId(Integer.parseInt(memberId)).build();
+            MemberDTO responseMemberDTO = memberService.viewProfile(temp);
+            return ResponseEntity.ok().body(responseMemberDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
     // 토큰 갱신하기
     @GetMapping("/updateToken")
     public ResponseEntity<?> updateToken(@AuthenticationPrincipal String memberId){
@@ -219,6 +234,24 @@ public class MemberController {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
+    }
+
+    // 회원정보 수정
+    @PostMapping("/editInfo")
+    public ResponseEntity<?> registerMember(MemberDTO memberDTO, @AuthenticationPrincipal String memberId) {
+
+        try {
+            MemberDTO registeredMember = memberService.editInfo(memberDTO, Integer.parseInt(memberId));
+            MemberDTO responseMemberDTO = MemberDTO.builder()
+                    .email(registeredMember.getEmail())
+                    .nickname(registeredMember.getNickname())
+                    .build();
+            return ResponseEntity.ok().body(responseMemberDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
     }
 
 

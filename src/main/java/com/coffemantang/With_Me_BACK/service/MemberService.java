@@ -137,6 +137,93 @@ public class MemberService {
 
     }
 
+    // 회원정보수정
+    public MemberDTO editInfo(MemberDTO memberDTO, final int memberId){
+
+        try {
+            Member member = memberRepository.findByMemberId(memberId);
+
+            member.setAddress1(memberDTO.getAddress1());
+            member.setAddress2(memberDTO.getAddress2());
+            member.setContact(memberDTO.getContact());
+            member.setName(memberDTO.getName());
+
+            // 이미지가 있는 경우
+            if (memberDTO.checkFileNull()) {
+
+                MultipartFile multipartFile = memberDTO.getFile().get(0);
+                String current_date = null;
+
+                if (!multipartFile.isEmpty()) {
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    current_date = now.format(dateTimeFormatter);
+
+                    //            String absolutePath = new File("").getAbsolutePath() + File.separator + File.separator;
+                    String absolutePath = "C:" + File.separator + "withMeImgs" + File.separator + "member";
+
+                    //            String path = "images" + File.separator + current_date;
+                    String path = absolutePath;
+                    File file = new File(path);
+
+                    if (!file.exists()) {
+                        boolean wasSuccessful = file.mkdirs();
+
+                        if (!wasSuccessful) {
+                            log.warn("file : was not successful");
+                        }
+                    }
+                    while (true) {
+                        String originalFileExtension;
+                        String contentType = multipartFile.getContentType();
+
+                        if (ObjectUtils.isEmpty(contentType)) {
+                            break;
+                        } else {
+                            if (contentType.contains("image/jpeg")) {
+                                originalFileExtension = ".jpg";
+                            } else if (contentType.contains("images/png")) {
+                                originalFileExtension = ".png";
+                            } else {
+                                break;
+                            }
+                        }
+
+                        // 기존에 파일이 있는 경우 기존 파일을 제거하고 진행
+                        if(member.getProfileImg() != null && member.getProfileImg() != ""){
+                            String tempPath = absolutePath + File.separator + member.getProfileImg();
+                            File delFile = new File(tempPath);
+                            // 해당 파일이 존재하는지 한번 더 체크 후 삭제
+                            if(delFile.isFile()){
+                                delFile.delete();
+                            }
+                        }
+
+                        String new_file_name = String.valueOf(memberId);
+
+                        member.setProfileImg(new_file_name + originalFileExtension);
+
+                        file = new File(absolutePath + File.separator + new_file_name + originalFileExtension);
+                        multipartFile.transferTo(file);
+
+                        file.setWritable(true);
+                        file.setReadable(true);
+                        break;
+                    }
+                }
+            }
+            memberRepository.save(member);
+
+            MemberDTO responseMemberDTO = new MemberDTO(member);
+            return responseMemberDTO;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("MemberService.add() : 에러 발생.");
+        }
+
+    }
+
 
     // 닉네임 중복 체크
     public boolean checkNickname(final String nickname){
@@ -174,7 +261,10 @@ public class MemberService {
             // MemberEntity 가져오기
             Member member = memberRepository.findByMemberId(memberDTO.getMemberId());
             // 평점 평균 가져오기
-            double rating = reviewMemberRepository.selectAVGRatingByReviewed(member.getMemberId());
+            Double rating = reviewMemberRepository.selectAVGRatingByReviewed(member.getMemberId());
+            if(rating == null){
+                rating = 0.0;
+            }
             // 여행 횟수 가져오기
             int travelRecord = planMembersRepository.selectCountByMemberIdAndCheckReviewGreaterThan(member.getMemberId(), 0);
 
@@ -186,9 +276,13 @@ public class MemberService {
             responseMemberDTO.setContact(member.getContact());
             responseMemberDTO.setRating(rating);
             responseMemberDTO.setTravelRecord(travelRecord);
+            responseMemberDTO.setAddress1(member.getAddress1());
+            responseMemberDTO.setAddress2(member.getAddress2());
+            responseMemberDTO.setEmail(member.getEmail());
+            responseMemberDTO.setName(member.getName());
             // 프로필사진 있다면 추가
             if (member.getProfileImg() != null) {
-                responseMemberDTO.setProfileImg("http://localhost:8080/images/member/" + member.getProfileImg());
+                responseMemberDTO.setProfileImg("http://localhost:8080/withMeImgs/member/" + member.getProfileImg());
             }
 
             return responseMemberDTO;
@@ -468,7 +562,8 @@ public class MemberService {
 
             Member member = memberRepository.findByMemberId(memberId);
 
-            return MemberDTO.builder()
+            MemberDTO memberDTO1 = MemberDTO.builder()
+                    .memberId(member.getMemberId())
                     .profileImg(member.getProfileImg())
                     .contact(member.getContact())
                     .address1(member.getAddress1())
@@ -481,6 +576,11 @@ public class MemberService {
                     .birthday(member.getBirthday())
                     .question(member.getQuestion())
                     .build();
+            if(member.getProfileImg() != null){
+                memberDTO1.setProfileImg("http://localhost:8080/withMeImgs/member/" + member.getProfileImg());
+            }
+
+            return memberDTO1;
 
         } catch (Exception e) {
             e.printStackTrace();

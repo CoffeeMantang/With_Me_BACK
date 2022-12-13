@@ -2,10 +2,7 @@ package com.coffemantang.With_Me_BACK.controller;
 
 import com.coffemantang.With_Me_BACK.dto.*;
 import com.coffemantang.With_Me_BACK.security.TokenProvider;
-import com.coffemantang.With_Me_BACK.service.EmailTokenService;
-import com.coffemantang.With_Me_BACK.service.MemberService;
-import com.coffemantang.With_Me_BACK.service.PlanCommentService;
-import com.coffemantang.With_Me_BACK.service.PlanService;
+import com.coffemantang.With_Me_BACK.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +32,10 @@ public class NonMemberController {
 
     @Autowired
     private final PlanService planService;
+
+    private final ReviewMemberService reviewMemberService;
+
+    private final ReviewPlanService reviewPlanService;
 
     // 회원가입
     @PostMapping("/signup")
@@ -97,6 +98,19 @@ public class NonMemberController {
         }
     }
 
+    // 여행 일정 찾기
+    @GetMapping("/categorySearch")
+    public ResponseEntity<?> cateogrySearchPlan(@RequestParam(value="keyword") String keyword,
+            @RequestParam String category,@PageableDefault(size = 10) Pageable pageable) throws Exception{
+        try{
+            List<PlanDTO> result = planService.categoryPlanSearch(keyword,category, pageable);
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
     // 여행 일정 보기
     @GetMapping("/view")
     public ResponseEntity<?> viewPlan(PlanDTO planDTO) {
@@ -133,6 +147,20 @@ public class NonMemberController {
         try {
             List<PlanCommentDTO> planCommentDTOList = planCommentService.listRecomment(planCommentDTO, pageable);
             return ResponseEntity.ok().body(planCommentDTOList);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 프로필
+    @PostMapping("/profile")
+    public ResponseEntity<?> viewProfile(@RequestBody MemberDTO memberDTO) {
+
+        try {
+            MemberDTO responseMemberDTO = memberService.viewProfile(memberDTO);
+            return ResponseEntity.ok().body(responseMemberDTO);
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
@@ -187,5 +215,33 @@ public class NonMemberController {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
+    }
+
+    // 프로필 대상이 받은 평가 리스트
+    @GetMapping("/reviewMemberList")
+    public ResponseEntity<?> listReview(@RequestParam int memberId, @PageableDefault(size = 10) Pageable pageable) {
+
+        try {
+            List<ReviewMemberDTO> reviewMemberDTOList = reviewMemberService.listReview(memberId, pageable);
+            return ResponseEntity.ok().body(reviewMemberDTOList);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 프로필 대상이 쓴 여행 리뷰 리스트
+    @GetMapping("/reviewPlanList")
+    public ResponseEntity<?> listReviewPlan(@RequestParam int memberId, @PageableDefault(size = 10) Pageable pageable) {
+
+        try {
+            List<ReviewPlanDTO> reviewPlanDTOList = reviewPlanService.listReviewPlan(memberId, pageable);
+            return ResponseEntity.ok().body(reviewPlanDTOList);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
     }
 }

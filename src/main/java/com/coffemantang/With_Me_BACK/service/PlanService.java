@@ -240,6 +240,34 @@ public class PlanService {
 
     }
 
+    // 여행일정수정 2
+    public void updatePlan2(int memberId, PlanDTO planDTO){
+        try{
+            // 조건 체크
+            if(planDTO.getState() > 1) {
+                log.warn("PlanService.updatePlan() : 여행이 시작된 후엔 수정할 수 없습니다.");
+                throw new RuntimeException("PlanService.updatePlan() : 여행이 시작된 후엔 수정할 수 없습니다.");
+            }
+
+            // 엔티티에 저장
+            Plan plan = planRepository.findById(planDTO.getPlanId());
+            //plan.setMemberId(memberId);
+            plan.setTitle(planDTO.getTitle());
+            //plan.setPersonnel(planDTO.getPersonnel());
+            //plan.setPostDate(planDTO.getPostDate());
+            //plan.setDeadline(planDTO.getDeadline());
+            //plan.setStartDate(planDTO.getStartDate());
+            //plan.setEndDate(planDTO.getEndDate());
+            plan.setNotice(planDTO.getNotice());
+            //plan.setTheme(planDTO.getTheme());
+            //plan.setPlace(planDTO.getPlace());
+            planRepository.save(plan);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
+
     // 여행 일정 수정
     public PlanDTO updatePlan(int memberId, PlanDTO planDTO) {
 
@@ -250,20 +278,22 @@ public class PlanService {
         }
 //        checkCondition(memberId, planDTO.getStartDate(), planDTO.getEndDate());
 
+        // plan 가져오기
+
         try {
             System.out.println(planDTO);
             // 엔티티에 저장
             Plan plan = planRepository.findById(planDTO.getPlanId());
-            plan.setMemberId(memberId);
+            //plan.setMemberId(memberId);
             plan.setTitle(planDTO.getTitle());
             plan.setPersonnel(planDTO.getPersonnel());
-            plan.setPostDate(planDTO.getPostDate());
-            plan.setDeadline(planDTO.getDeadline());
-            plan.setStartDate(planDTO.getStartDate());
-            plan.setEndDate(planDTO.getEndDate());
+            //plan.setPostDate(planDTO.getPostDate());
+            //plan.setDeadline(planDTO.getDeadline());
+            //plan.setStartDate(planDTO.getStartDate());
+            //plan.setEndDate(planDTO.getEndDate());
             plan.setNotice(planDTO.getNotice());
-            plan.setTheme(planDTO.getTheme());
-            plan.setPlace(planDTO.getPlace());
+            //plan.setTheme(planDTO.getTheme());
+            //plan.setPlace(planDTO.getPlace());
             planRepository.save(plan);
 
             // 저장한 엔티티 DTO에 담아서 리턴
@@ -397,7 +427,7 @@ public class PlanService {
             plan.setHit(plan.getHit() + 1);
             planRepository.save(plan);
             // 여행 디테일 리스트 가져와서 이미지 설정
-            List<PlanDetail> planDetailList = planDetailRepository.findByPlanId(planDTO.getPlanId());
+            List<PlanDetail> planDetailList = planDetailRepository.findByPlanIdOrderByDetailDate(planDTO.getPlanId());
             List<PlanDetailDTO> planDetailDTOList = new ArrayList<>();
             for (PlanDetail planDetail : planDetailList) {
                 planDetail.setDetailImg("http://localhost:8080/withMeImgs/planDetail/" + planDetail.getDetailImg());
@@ -430,6 +460,27 @@ public class PlanService {
     public List<PlanDTO> planSearch(final String keyword, final Pageable pageable) throws Exception{
         try{
             Page<Plan> pPlan = planRepository.findAllByPlaceLikeOrderByPostDateDesc(keyword, pageable);
+            List<Plan> lPlan = pPlan.getContent();
+            List<PlanDTO> resultList = new ArrayList<>();
+            for(Plan plan : lPlan){
+                Member member = memberRepository.findByMemberId(plan.getMemberId());
+                long cnt = planMembersRepository.countByPlanId(plan.getPlanId());
+                PlanDTO planDTO = PlanDTO.builder().deadline(plan.getDeadline()).planId(plan.getPlanId())
+                        .startDate(plan.getStartDate()).endDate(plan.getEndDate()).participant(cnt)
+                        .personnel(plan.getPersonnel()).state(plan.getState()).postDate(plan.getPostDate())
+                        .hit(plan.getHit()).title(plan.getTitle()).nickname(member.getNickname()).build();
+                resultList.add(planDTO);
+            }
+            return resultList;
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
+
+    public List<PlanDTO> categoryPlanSearch(final String keyword, final String category, final Pageable pageable) throws Exception{
+        try{
+            Page<Plan> pPlan = planRepository.findAllByPlaceLikeAndThemeLikeOrderByPostDateDesc(keyword,category, pageable);
             List<Plan> lPlan = pPlan.getContent();
             List<PlanDTO> resultList = new ArrayList<>();
             for(Plan plan : lPlan){
@@ -494,6 +545,17 @@ public class PlanService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("PlanService.listPlan() : 에러 발생.");
+        }
+    }
+
+    // 내가 작성한 글인지 체크
+    public long isMyPlan(final int memberId, final int planId) throws Exception{
+        try{
+            long cnt = planRepository.countByPlanIdAndMemberId(planId, memberId);
+            return cnt;
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("PlanService.isMyPlan() : 에러 발생.");
         }
     }
 }

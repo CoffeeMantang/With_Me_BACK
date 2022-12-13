@@ -8,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,16 +37,29 @@ public class PlanDetailController {
 
     // 여행 일정 디테일 수정
     @PostMapping("/update")
-    public ResponseEntity<?> updateDetail(@AuthenticationPrincipal String memberId, PlanDTO planDetailDTOList) {
+    public ResponseEntity<?> updateDetail(@AuthenticationPrincipal String memberId, PlanDetailDTO planDetailDTOList) {
 
         try {
-            List<PlanDetailDTO> responseDTO = planDetailService.updateDetail(Integer.parseInt(memberId), planDetailDTOList);
-            return ResponseEntity.ok().body(responseDTO);
+            planDetailService.updateOneDetail(Integer.parseInt(memberId), planDetailDTOList);
+            return ResponseEntity.ok().body("ok");
         } catch (Exception e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
 
+    }
+
+    // 여행 일정 디테일 가져오기
+    @GetMapping("/view")
+    public ResponseEntity<?> viewDetail(@RequestParam int planDetailId) throws Exception{
+        try{
+            PlanDetailDTO planDetailDTO = planDetailService.getPlanDetail(planDetailId);
+            return ResponseEntity.ok().body(planDetailDTO);
+        }catch (Exception e) {
+            e.printStackTrace();
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
     }
 
 }
