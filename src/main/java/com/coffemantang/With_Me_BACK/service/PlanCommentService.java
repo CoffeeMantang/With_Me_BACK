@@ -118,6 +118,7 @@ public class PlanCommentService {
             List<PlanCommentDTO> planCommentDTOList = new ArrayList<>();
             for (PlanComment planComment : planCommentList) {
                 PlanCommentDTO newPlanCommentDto = PlanCommentDTO.builder()
+                        .planCommentId(planComment.getPlanCommentId())
                         .planId(planComment.getPlanId())
                         .content(planComment.getContent())
                         .stage(planComment.getStage())
@@ -142,6 +143,7 @@ public class PlanCommentService {
         try {
 
             PlanComment planComment = planCommentRepository.findByPlanCommentIdAndMemberId(planCommentDTO.getPlanCommentId(), memberId);
+            log.warn("planCommentID : " + planCommentDTO.getPlanCommentId());
             int stage = planComment.getStage();
             if (stage == 0){
                 List<PlanComment> planCommentList = planCommentRepository.findByPlanIdAndGroupNum(planComment.getPlanId(), planComment.getGroupNum());

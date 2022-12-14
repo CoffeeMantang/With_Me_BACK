@@ -41,7 +41,7 @@ public class ReviewPlanService {
 
     // 리뷰 작성
     public void addReviewPlan(int memberId, ReviewPlanDTO reviewPlanDTO) {
-
+        log.warn("planId " + reviewPlanDTO.getPlanId());
         planService.checkState(new CheckDTO(reviewPlanDTO.getPlanId()));
         if ( 0 < reviewPlanRepository.countByPlanIdAndReviewer(reviewPlanDTO.getPlanId(), memberId)) {
             log.warn("ReviewMemberService.addReviewPlan() : 이미 해당 여행에 대한 리뷰를 작성했습니다.");
@@ -328,6 +328,8 @@ public class ReviewPlanService {
             ReviewPlanDTO responseDTO = new ReviewPlanDTO(reviewPlan);
             responseDTO.setReviewPlanImgDTOList(reviewPlanImgDTOList);
 
+            log.warn("내용" + responseDTO.getReviewPlanImgDTOList().get(0).getPath());
+
             return responseDTO;
 
         } catch (Exception e) {
@@ -347,9 +349,20 @@ public class ReviewPlanService {
             List<ReviewPlanDTO> reviewPlanDTOList = new ArrayList<>();
 
             for (ReviewPlan reviewPlan : reviewPlanList) {
+                // 이미지 리스트 가져와서 이미지 설정
+                List<ReviewPlanImg> reviewPlanImgList = reviewPlanImgRepository.findByReviewPlanId(reviewPlan.getReviewPlanId());
+                List<ReviewPlanImgDTO> reviewPlanImgDTOList = new ArrayList<>();
+
+                for (ReviewPlanImg reviewPlanImg : reviewPlanImgList) {
+                    reviewPlanImg.setPath("http://localhost:8080/withMeImgs/review/" + reviewPlanImg.getPath());
+                    ReviewPlanImgDTO reviewPlanImgDTO = new ReviewPlanImgDTO(reviewPlanImg);
+                    reviewPlanImgDTOList.add(reviewPlanImgDTO);
+                }
                 ReviewPlanDTO reviewPlanDTO = new ReviewPlanDTO(reviewPlan);
+                reviewPlanDTO.setReviewPlanImgDTOList(reviewPlanImgDTOList);
                 reviewPlanDTOList.add(reviewPlanDTO);
             }
+
             return reviewPlanDTOList;
 
         } catch (Exception e) {

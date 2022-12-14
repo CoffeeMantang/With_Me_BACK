@@ -397,7 +397,9 @@ public class PlanService {
     // 여행 일정 삭제
     public void deletePlan(int memberId, PlanDTO planDTO) {
 
-        if(1 != planRepository.countByPlanIdAndMemberId(memberId, planDTO.getPlanId())) {
+        log.warn("들어온 planId: " + planDTO.getPlanId());
+
+        if(1 == planRepository.countByPlanIdAndMemberId(memberId, planDTO.getPlanId())) {
             log.warn("PlanService.deletePlan() : 해당 Plan의 작성자가 아닙니다.");
             throw new RuntimeException("PlanService.deletePlan() : 해당 Plan의 작성자가 아닙니다.");
         }
