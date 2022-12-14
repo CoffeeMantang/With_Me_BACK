@@ -66,7 +66,7 @@ public class PlanService {
     }
 
     // state 변환
-    public CheckDTO checkState(CheckDTO checkDTO) {
+    public void checkState(CheckDTO checkDTO) {
 
         List<PlanDTO> planDTOList = checkDTO.getPlanDTOList();
         PlanDTO planDTO = checkDTO.getPlanDTO();
@@ -97,7 +97,7 @@ public class PlanService {
 
         }
 
-        return responseCheckDTO;
+//        return responseCheckDTO;
 
     }
 
@@ -465,6 +465,7 @@ public class PlanService {
             List<Plan> lPlan = pPlan.getContent();
             List<PlanDTO> resultList = new ArrayList<>();
             for(Plan plan : lPlan){
+                checkState(new CheckDTO(plan.getPlanId()));
                 Member member = memberRepository.findByMemberId(plan.getMemberId());
                 long cnt = planMembersRepository.countByPlanId(plan.getPlanId());
                 PlanDTO planDTO = PlanDTO.builder().deadline(plan.getDeadline()).planId(plan.getPlanId())
@@ -486,6 +487,7 @@ public class PlanService {
             List<Plan> lPlan = pPlan.getContent();
             List<PlanDTO> resultList = new ArrayList<>();
             for(Plan plan : lPlan){
+                checkState(new CheckDTO(plan.getPlanId()));
                 Member member = memberRepository.findByMemberId(plan.getMemberId());
                 long cnt = planMembersRepository.countByPlanId(plan.getPlanId());
                 PlanDTO planDTO = PlanDTO.builder().deadline(plan.getDeadline()).planId(plan.getPlanId())
@@ -513,6 +515,7 @@ public class PlanService {
             List<PlanDTO> planDTOList = new ArrayList<>();
 
             for (Plan plan : planList) {
+                checkState(new CheckDTO(plan.getPlanId()));
                 Member member = memberRepository.findByMemberId(plan.getMemberId());
                 PlanDTO planDTO = PlanDTO.builder()
                         .planId(plan.getPlanId())
@@ -553,6 +556,7 @@ public class PlanService {
     // 내가 작성한 글인지 체크
     public long isMyPlan(final int memberId, final int planId) throws Exception{
         try{
+            checkState(new CheckDTO(planId));
             long cnt = planRepository.countByPlanIdAndMemberId(planId, memberId);
             return cnt;
         }catch (Exception e) {
