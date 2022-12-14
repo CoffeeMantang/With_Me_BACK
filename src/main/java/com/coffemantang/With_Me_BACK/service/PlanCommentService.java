@@ -136,4 +136,24 @@ public class PlanCommentService {
             throw new RuntimeException("PlanCommentService.listRecomment() : 에러 발생.");
         }
     }
+
+    public void deleteComment(int memberId, PlanCommentDTO planCommentDTO) {
+
+        try {
+
+            PlanComment planComment = planCommentRepository.findByPlanCommentIdAndMemberId(planCommentDTO.getPlanCommentId(), memberId);
+            int stage = planComment.getStage();
+            if (stage == 0){
+                List<PlanComment> planCommentList = planCommentRepository.findByPlanIdAndGroupNum(planComment.getPlanId(), planComment.getGroupNum());
+                planCommentRepository.deleteAll(planCommentList);
+            } else if (stage == 1) {
+                planCommentRepository.delete(planComment);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("PlanCommentService.deleteComment() : 에러 발생.");
+        }
+    }
 }

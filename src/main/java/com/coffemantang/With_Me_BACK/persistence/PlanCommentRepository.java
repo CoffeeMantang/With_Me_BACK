@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PlanCommentRepository extends JpaRepository<PlanComment, Integer> {
 
@@ -23,4 +25,8 @@ public interface PlanCommentRepository extends JpaRepository<PlanComment, Intege
 
     // 대댓글 갯수 가져오기
     long countByGroupNum(int groupNum);
+
+    PlanComment findByPlanCommentIdAndMemberId(int id, int memberId);
+
+    List<PlanComment> findByPlanIdAndGroupNum(int planId, int groupNum);
 }

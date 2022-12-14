@@ -5,13 +5,9 @@ import com.coffemantang.With_Me_BACK.dto.ResponseDTO;
 import com.coffemantang.With_Me_BACK.service.PlanCommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -45,6 +41,21 @@ public class PlanCommentController {
         try {
             String content = planCommentDTO.getContent();
             planCommentService.addRecomment(Integer.parseInt(memberId), planCommentDTO, content);
+            ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+    }
+
+    // 댓글 삭제
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteComment(@AuthenticationPrincipal String memberId, @RequestBody PlanCommentDTO planCommentDTO ) {
+
+        try {
+            planCommentService.deleteComment(Integer.parseInt(memberId), planCommentDTO);
             ResponseDTO responseDTO = ResponseDTO.builder().error("ok").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
